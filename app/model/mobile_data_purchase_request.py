@@ -1,3 +1,6 @@
+import datetime
+
+
 class MobileDataPurchaseRequest:
     def __init__(
         self,
@@ -16,6 +19,14 @@ class MobileDataPurchaseRequest:
         self.credit_card_cvv = credit_card_cvv
         self.billing_account_number = billing_account_number
         self.requested_mobile_data = requested_mobile_data
+
+        self._convert_dates_to_datetime()
+
+    def _convert_dates_to_datetime(self):
+        self.date_of_birth = datetime.datetime.strptime(self.date_of_birth, "%m/%d/%Y")
+        self.credit_card_expiration_date = datetime.datetime.strptime(
+            self.credit_card_expiration_date, "%m/%y"
+        )
 
     @classmethod
     async def from_binary_data(cls, request):
