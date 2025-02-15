@@ -7,7 +7,7 @@ def validate_purchase_request(
     date_of_birth, credit_card_number, credit_card_expiration_date
 ):
     # Prep Step: Initialize validation errors list
-    validation_errors = []
+    validation_errors = ""
 
     # Prep Step: Load environment variables
     minimum_card_number_length = int(os.getenv("MINIMUM_CREDIT_CARD_NUMBER_LENGTH", 15))
@@ -15,19 +15,17 @@ def validate_purchase_request(
     legal_age = int(os.getenv("LEGAL_AGE", 18))
 
     # Step 1: Validate that the requestor is of legal age
-    validation_errors.append(is_customer_of_legal_age(date_of_birth, legal_age))
+    validation_errors += is_customer_of_legal_age(date_of_birth, legal_age)
 
     # Step 2: Validate the credit card number
-    validation_errors.append(
-        is_credit_card_number_valid(
-            credit_card_number,
-            minimum_card_number_length,
-            maximum_card_number_length,
-        )
+    validation_errors += is_credit_card_number_valid(
+        credit_card_number,
+        minimum_card_number_length,
+        maximum_card_number_length,
     )
 
     # Step 3: Validate the credit card expiration date
-    validation_errors.append(is_credit_card_expired(credit_card_expiration_date))
+    validation_errors += is_credit_card_expired(credit_card_expiration_date)
 
     # Return the validation errors list
     return validation_errors
