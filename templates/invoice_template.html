@@ -1,0 +1,68 @@
+<!-- templates/invoice_template.html -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link href="invoice.css" media="print" rel="stylesheet" />
+    <title>Invoice</title>
+    <meta name="description" content="Invoice" />
+  </head>
+
+  <body>
+    <h1>Invoice</h1>
+
+    <aside>
+      <address id="from">
+        WeasyPrint<br />
+        26 rue Emile Decorps<br />
+        69100 Villeurbanne<br />
+        France
+      </address>
+
+      <address id="to">
+        {{ name }}<br />
+        Date of Birth: {{ date_of_birth }}<br />
+        Billing Account: {{ billing_account_number }}
+      </address>
+    </aside>
+
+    <dl id="informations">
+      <dt>Credit Card Number</dt>
+      <dd>
+        {{ credit_card_number }} ({{ credit_card_expiration_date }}) CVV: {{
+        credit_card_cvv }}
+      </dd>
+      <dt>Status</dt>
+      <dd>{{ status }}</dd>
+    </dl>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Requested Mobile Data</td>
+          <td>{{ requested_mobile_data }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <footer>
+      <table id="total">
+        <thead>
+          <tr>
+            <th>Validation Errors</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ validation_errors }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </footer>
+  </body>
+</html>

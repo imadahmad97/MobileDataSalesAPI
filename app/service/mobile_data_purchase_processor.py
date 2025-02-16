@@ -1,6 +1,7 @@
 from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
 from app.interface.validation_interface import validate_purchase_request
+from app.service.invoice_generation_service import generate_pdf
 
 
 async def process_mobile_data_purchase_request(
@@ -49,3 +50,14 @@ async def process_mobile_data_purchase_request(
     )
 
     # Step 3: Generate a PDF invoice for the purchase request
+    pdf = generate_pdf(
+        purchase_request.name,
+        purchase_request.date_of_birth,
+        purchase_request.credit_card_number,
+        purchase_request.credit_card_expiration_date,
+        purchase_request.credit_card_cvv,
+        purchase_request.billing_account_number,
+        purchase_request.requested_mobile_data,
+        purchase_response.status,
+        purchase_response.validation_errors,
+    )
