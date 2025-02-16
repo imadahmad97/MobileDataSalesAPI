@@ -4,7 +4,9 @@ import sqlite3
 class DatabaseService:
     def __init__(self):
         # Allow the SQLite connection to be used across threads
-        self.con = sqlite3.connect("mobile_data_sales_api.db", check_same_thread=False)
+        self.con = sqlite3.connect(
+            "appdata/mobile_data_sales_api.db", check_same_thread=False
+        )
         self.cur = self.con.cursor()
         self.cur.execute(
             """CREATE TABLE IF NOT EXISTS 

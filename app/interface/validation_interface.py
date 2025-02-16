@@ -4,7 +4,7 @@ import datetime
 
 
 def validate_purchase_request(
-    date_of_birth, credit_card_number, credit_card_expiration_date
+    date_of_birth, credit_card_number, credit_card_expiration_date, credit_card_cvv
 ):
     # Prep Step: Initialize validation errors list
     validation_errors = ""
@@ -12,6 +12,8 @@ def validate_purchase_request(
     # Prep Step: Load environment variables
     minimum_card_number_length = int(os.getenv("MINIMUM_CREDIT_CARD_NUMBER_LENGTH", 15))
     maximum_card_number_length = int(os.getenv("MAXIMUM_CREDIT_CARD_NUMBER_LENGTH", 19))
+    minimum_cvv_length = int(os.getenv("MINIMUM_CVV_LENGTH", 3))
+    maximum_cvv_length = int(os.getenv("MAXIMUM_CVV_LENGTH", 4))
     legal_age = int(os.getenv("LEGAL_AGE", 18))
 
     # Step 1: Validate that the requestor is of legal age
@@ -22,6 +24,11 @@ def validate_purchase_request(
         credit_card_number,
         minimum_card_number_length,
         maximum_card_number_length,
+    )
+
+    # Step 3: Validate the credit card cvv
+    validation_errors += is_cvv_valid(
+        credit_card_cvv, minimum_cvv_length, maximum_cvv_length
     )
 
     # Step 3: Validate the credit card expiration date
@@ -36,7 +43,7 @@ def is_customer_of_legal_age(date_of_birth, legal_age):
     if age >= legal_age:
         return ""
     else:
-        return "Customer is not of legal age."
+        return "Customer is not of legal age. "
 
 
 def is_credit_card_number_valid(
@@ -51,11 +58,18 @@ def is_credit_card_number_valid(
     ) and is_luhn(credit_card_number):
         return ""
     else:
-        return "Credit card number is invalid."
+        return "Credit card number is invalid. "
+
+
+def is_cvv_valid(credit_card_cvv, minimum_cvv_length, maximum_cvv_length):
+    if minimum_cvv_length <= len(credit_card_cvv) <= maximum_cvv_length:
+        return ""
+    else:
+        return "CVV is invalid. "
 
 
 def is_credit_card_expired(credit_card_expiration_date):
     if credit_card_expiration_date >= datetime.datetime.now():
         return ""
     else:
-        return "Credit card is expired."
+        return "Credit card is expired. "
