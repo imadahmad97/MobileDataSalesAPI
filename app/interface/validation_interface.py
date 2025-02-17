@@ -34,7 +34,7 @@ def validate_purchase_request(
     # Step 3: Validate the credit card expiration date
     validation_errors += is_credit_card_expired(credit_card_expiration_date)
 
-    # Return the validation errors list
+    # Return the validation errors
     return validation_errors
 
 

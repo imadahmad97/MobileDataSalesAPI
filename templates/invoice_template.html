@@ -150,10 +150,15 @@
         <tr>
           <td>Mobile Data Purchase</td>
           <td>{{ requested_mobile_data }}</td>
-          <td>{{ price }}</td>
+          <td>$50.73</td>
         </tr>
       </tbody>
     </table>
+    <img
+      src="data:image/png;base64,{{ qr_code }}"
+      alt="QR Code"
+      style="width: 100px; margin-top: 200px; display: block"
+    />
 
     <footer>
       <table id="total">

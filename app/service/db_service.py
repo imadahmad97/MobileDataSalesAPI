@@ -5,7 +5,7 @@ class DatabaseService:
     def __init__(self):
         # Allow the SQLite connection to be used across threads
         self.con = sqlite3.connect(
-            "appdata/mobile_data_sales_api.db", check_same_thread=False
+            "appdata/database/mobile_data_sales_api.db", check_same_thread=False
         )
         self.cur = self.con.cursor()
         self.cur.execute(
@@ -18,13 +18,7 @@ class DatabaseService:
 
     def record_transaction(
         self,
-        name,
-        date_of_birth,
-        credit_card_number,
-        credit_card_expiration_date,
-        credit_card_cvv,
-        billing_account_number,
-        requested_mobile_data,
+        purchase_request,
         status,
         validation_errors,
     ):
@@ -33,13 +27,13 @@ class DatabaseService:
             credit_card_cvv, billing_account_number, requested_mobile_data, status, validation_errors) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
-                name,
-                date_of_birth,
-                credit_card_number,
-                credit_card_expiration_date,
-                credit_card_cvv,
-                billing_account_number,
-                requested_mobile_data,
+                purchase_request.name,
+                purchase_request.date_of_birth,
+                purchase_request.credit_card_number,
+                purchase_request.credit_card_expiration_date,
+                purchase_request.credit_card_cvv,
+                purchase_request.billing_account_number,
+                purchase_request.requested_mobile_data,
                 status,
                 validation_errors,
             ),
@@ -51,6 +45,7 @@ class DatabaseService:
         self.cur.close()
         self.con.close()
 
+    @staticmethod
     def get_db_service():
         """Create a new DatabaseService instance for each request and ensure it is closed after use."""
         db_service = DatabaseService()

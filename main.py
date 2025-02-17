@@ -8,9 +8,17 @@ app = FastAPI()
 
 
 @app.post("/mobile-data-purchase-request")
-async def root(
-    request: Request,
+async def mobile_data_purchase_request_route(
+    binary_purchase_request: Request,
     db_service: DatabaseService = Depends(DatabaseService.get_db_service),
 ):
-    response = await process_mobile_data_purchase_request(request, db_service)
+    response = await process_mobile_data_purchase_request(
+        binary_purchase_request, db_service
+    )
+
     return response
+
+
+@app.post("/bulk-mobile-data-purchase-request")
+async def bulk_mobile_data_purchase_request_route():
+    pass
