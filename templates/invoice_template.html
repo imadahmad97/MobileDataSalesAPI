@@ -1,51 +1,156 @@
-<!-- templates/invoice_template.html -->
 <html>
   <head>
     <meta charset="utf-8" />
-    <link href="invoice.css" media="print" rel="stylesheet" />
+    <style>
+      @font-face {
+        font-family: Pacifico;
+        src: url(pacifico.ttf);
+      }
+      @font-face {
+        font-family: Source Sans Pro;
+        font-weight: 400;
+        src: url(sourcesanspro-regular.otf);
+      }
+      @font-face {
+        font-family: Source Sans Pro;
+        font-weight: 700;
+        src: url(sourcesanspro-bold.otf);
+      }
+
+      html {
+        color: #14213d;
+        font-family: Source Sans Pro;
+        font-size: 11pt;
+        line-height: 1.6;
+      }
+      body {
+        margin: 0;
+      }
+
+      h1 {
+        color: #1ee494;
+        font-family: Pacifico;
+        font-size: 40pt;
+        margin: 0;
+      }
+
+      aside {
+        display: flex;
+        margin: 2em 0 4em;
+      }
+      aside address {
+        font-style: normal;
+        white-space: pre-line;
+      }
+      aside address#from {
+        color: #a9a;
+        flex: 1;
+      }
+      aside address#to {
+        text-align: right;
+      }
+
+      dl {
+        position: absolute;
+        right: 0;
+        text-align: right;
+        top: 0;
+      }
+      dt,
+      dd {
+        display: inline;
+        margin: 0;
+      }
+      dt {
+        color: #a9a;
+      }
+      dt::before {
+        content: "";
+        display: block;
+      }
+      dt::after {
+        content: ":";
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th {
+        border-bottom: 0.2mm solid #a9a;
+        color: #a9a;
+        font-size: 10pt;
+        font-weight: 400;
+        padding-bottom: 0.25cm;
+        text-transform: uppercase;
+      }
+      td {
+        padding-top: 7mm;
+      }
+      td:last-of-type {
+        color: #1ee494;
+        font-weight: bold;
+        text-align: right;
+      }
+      th,
+      td {
+        text-align: center;
+      }
+      th:first-of-type,
+      td:first-of-type {
+        text-align: left;
+      }
+      th:last-of-type,
+      td:last-of-type {
+        text-align: right;
+      }
+      footer {
+        content: "";
+        display: block;
+        height: 6cm;
+      }
+      table#total {
+        background: #f6f6f6;
+        border-color: #f6f6f6;
+        border-style: solid;
+        bottom: 0;
+        font-size: 8pt;
+        position: absolute;
+      }
+    </style>
     <title>Invoice</title>
-    <meta name="description" content="Invoice" />
+    <meta name="description" content="Invoice demo sample" />
   </head>
 
   <body>
     <h1>Invoice</h1>
 
     <aside>
-      <address id="from">
-        WeasyPrint<br />
-        26 rue Emile Decorps<br />
-        69100 Villeurbanne<br />
-        France
-      </address>
+      <address id="from">TELUS Corp.</address>
 
-      <address id="to">
-        {{ name }}<br />
-        Date of Birth: {{ date_of_birth }}<br />
-        Billing Account: {{ billing_account_number }}
-      </address>
+      <address id="to">{{ name }}</address>
     </aside>
 
     <dl id="informations">
-      <dt>Credit Card Number</dt>
-      <dd>
-        {{ credit_card_number }} ({{ credit_card_expiration_date }}) CVV: {{
-        credit_card_cvv }}
-      </dd>
-      <dt>Status</dt>
-      <dd>{{ status }}</dd>
+      <dt>Billing Account Number</dt>
+      <dd>{{ billing_account_number}}</dd>
+      <dt>Date</dt>
+      <dd>{{ date }}</dd>
     </dl>
 
     <table>
       <thead>
         <tr>
           <th>Description</th>
-          <th>Quantity</th>
+          <th>Mobile Data Requested</th>
+          <th>Price</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>Requested Mobile Data</td>
+          <td>Mobile Data Purchase</td>
           <td>{{ requested_mobile_data }}</td>
+          <td>{{ price }}</td>
         </tr>
       </tbody>
     </table>
@@ -54,11 +159,15 @@
       <table id="total">
         <thead>
           <tr>
-            <th>Validation Errors</th>
+            <th>Payment Information</th>
+            <th>Approval Status</th>
+            <th>Issues</th>
           </tr>
         </thead>
         <tbody>
           <tr>
+            <td>************{{ credit_card_number }}</td>
+            <td>{{ status }}</td>
             <td>{{ validation_errors }}</td>
           </tr>
         </tbody>

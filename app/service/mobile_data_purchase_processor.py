@@ -2,6 +2,7 @@ from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
 from app.interface.validation_interface import validate_purchase_request
 from app.service.invoice_generation_service import generate_pdf
+import datetime
 
 
 async def process_mobile_data_purchase_request(
@@ -53,7 +54,7 @@ async def process_mobile_data_purchase_request(
     pdf = generate_pdf(
         purchase_request.name,
         purchase_request.date_of_birth,
-        purchase_request.credit_card_number,
+        purchase_request.credit_card_number[:-4],
         purchase_request.credit_card_expiration_date,
         purchase_request.credit_card_cvv,
         purchase_request.billing_account_number,
@@ -61,3 +62,5 @@ async def process_mobile_data_purchase_request(
         purchase_response.status,
         purchase_response.validation_errors,
     )
+
+    print(purchase_response.validation_errors)

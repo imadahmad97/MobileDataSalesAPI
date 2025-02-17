@@ -1,7 +1,7 @@
 from jinja2 import Environment, FileSystemLoader
 from weasyprint import HTML
-
-# Load Jinja2 template environment
+import os
+import datetime
 
 
 def render_invoice(
@@ -17,6 +17,7 @@ def render_invoice(
 ):
     template_env = Environment(loader=FileSystemLoader("templates"))
     invoice_template = template_env.get_template("invoice_template.html")
+    print("Validation Errors: ", validation_errors)
     data = {
         "name": name,
         "date_of_birth": date_of_birth,
@@ -27,6 +28,7 @@ def render_invoice(
         "requested_mobile_data": requested_mobile_data,
         "status": status,
         "validation_errors": validation_errors,
+        "date": datetime.datetime.now().strftime("%Y-%m-%d"),
     }
     return invoice_template.render(data)
 
@@ -53,8 +55,9 @@ def generate_pdf(
         status,
         validation_errors,
     )
-    pdf = HTML(string=html_content).write_pdf(target="appdata/invoice.pdf")
+    filename = f"invoice_{billing_account_number}.pdf"
+    output_path = os.path.join("appdata/pdfs", filename)
+    print("Validation Errors: ", validation_errors)
+
+    pdf = HTML(string=html_content).write_pdf(target=output_path)
     return pdf
-
-
-# Call generate_pdf() with all required variables to get the PDF directly.
