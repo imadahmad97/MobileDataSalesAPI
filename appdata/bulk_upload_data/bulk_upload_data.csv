@@ -1,0 +1,4 @@
+name,date_of_birth,credit_card_number,credit_card_expiration_date,credit_card_cvv,billing_account_number,requested_mobile_data
+John Doe,01/01/1990,1234567890123456,01/23,123,246810,5 GB
+Jane Doe,02/02/1991,2345678901234567,02/24,234,12345,6 GB
+Imad Ahmad,07/16/1997,4724090088427677,07/28,342,6787910,10 GB

@@ -1,6 +1,7 @@
 from jinja2 import Environment, FileSystemLoader
-from weasyprint import HTML
 import os
+
+from weasyprint import HTML
 import datetime
 import qrcode
 import base64

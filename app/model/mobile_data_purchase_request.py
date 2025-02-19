@@ -1,4 +1,6 @@
 import datetime
+import csv
+from app.service.binary_parser import parse_binary_text_to_dict, parse_csv_to_dicts
 
 
 class MobileDataPurchaseRequest:
@@ -29,20 +31,15 @@ class MobileDataPurchaseRequest:
         )
 
     @classmethod
-    async def from_binary_data(cls, request):
-        contents = await request.body()
-        decoded_text = contents.decode("utf-8")
-
-        parsed_data = cls._parse_text(decoded_text)
-
+    async def build_from_binary_file(cls, request):
+        parsed_data = await parse_binary_text_to_dict(await request.body())
         return cls(**parsed_data)
 
-    @staticmethod
-    def _parse_text(text: str):
-        data = {}
-        for line in text.split("\n"):
-            if ": " in line:
-                key, value = line.split(": ", 1)
-                formatted_key = key.lower().replace(" ", "_")
-                data[formatted_key] = value.strip()
-        return data
+    @classmethod
+    def build_from_csv(cls, file_path):
+        instances = []
+        with open(file_path, "r") as file:
+            csv_reader = csv.DictReader(file)
+            for row in csv_reader:
+                instances.append(cls(**row))
+        return instances
