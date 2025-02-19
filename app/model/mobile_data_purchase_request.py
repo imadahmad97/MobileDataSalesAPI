@@ -1,6 +1,6 @@
 import datetime
 import csv
-from app.service.binary_parser import parse_binary_text_to_dict, parse_csv_to_dicts
+import base64
 
 
 class MobileDataPurchaseRequest:
@@ -32,14 +32,38 @@ class MobileDataPurchaseRequest:
 
     @classmethod
     async def build_from_binary_file(cls, request):
-        parsed_data = await parse_binary_text_to_dict(await request.body())
+        parsed_data = await cls._decode_binary_file(await request.body())
         return cls(**parsed_data)
 
     @classmethod
-    def build_from_csv(cls, file_path):
-        instances = []
+    def build_from_binary_csv(cls, file_path):
+        decoded_data = cls._decode_binary_csv(file_path)
+        return [cls(**row) for row in decoded_data]
+
+    @staticmethod
+    async def _decode_binary_file(contents: bytes) -> dict:
+        base64_string = contents.decode("utf-8")
+        text = base64.b64decode(base64_string).decode("utf-8")
+        data = {}
+        for line in text.split("\n"):
+            if ": " in line:
+                key, value = line.split(": ", 1)
+                data[key.lower().replace(" ", "_")] = value.strip()
+        return data
+
+    @staticmethod
+    def _decode_binary_csv(file_path: str) -> list[dict]:
+        """Decodes a Base64-encoded CSV file and returns a list of dictionaries."""
         with open(file_path, "r") as file:
-            csv_reader = csv.DictReader(file)
-            for row in csv_reader:
-                instances.append(cls(**row))
-        return instances
+            csv_reader = csv.reader(file)
+            headers = [
+                base64.b64decode(header).decode("utf-8") for header in next(csv_reader)
+            ]
+            data = [
+                {
+                    headers[i]: base64.b64decode(cell).decode("utf-8")
+                    for i, cell in enumerate(row)
+                }
+                for row in csv_reader
+            ]
+        return data
