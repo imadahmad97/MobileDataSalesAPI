@@ -25,9 +25,7 @@ async def process_mobile_data_purchase_request(
         purchase_request.credit_card_cvv,
     )
     # Step 2: Approve the purchase request if there are no validation errors
-    purchase_response.status = (
-        "Approved" if not purchase_response.validation_errors else "Rejected"
-    )
+    purchase_response.update_status()
 
     # Step 3: Save the purchase request to the database
     db_service.record_transaction(

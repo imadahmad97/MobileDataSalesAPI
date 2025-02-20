@@ -1,3 +1,13 @@
+"""
+This module contains the functions for generating invoices. It includes a function for generating a
+QR code, a function for rendering an HTML invoice, and a function for generating a PDF invoice.
+
+Functions:
+    generate_qr_code
+    render_html_invoice
+    generate_pdf_invoice
+"""
+
 from jinja2 import Environment, FileSystemLoader, Template
 from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
 import os
@@ -9,6 +19,11 @@ import io
 
 
 def generate_qr_code(billing_account_number: str) -> str:
+    """
+    This function generates a QR code for a given billing account number. It generates the code,
+    adds the URL with the billing account number, and returns the base64 encoded string of the
+    qr code.
+    """
     url: str = f"https://telus.com/user/{billing_account_number}"
     qr: qrcode.QRCode = qrcode.QRCode(
         version=1,
@@ -36,6 +51,10 @@ def render_html_invoice(
     status: str,
     validation_errors: str,
 ) -> str:
+    """
+    This function renders an HTML invoice containing the proided data and generated QR code. It
+    returns the rendered HTML as a string.
+    """
     template_env: Environment = Environment(loader=FileSystemLoader("templates"))
     invoice_template: Template = template_env.get_template("invoice_template.html")
     qr_code: str = generate_qr_code(billing_account_number)
@@ -57,6 +76,11 @@ def render_html_invoice(
 def generate_pdf_invoice(
     purchase_response: "MobileDataPurchaseResponse",
 ) -> None:
+    """
+    This function generates a PDF invoice for a given mobile data purchase response. It renders the
+    invoice as an HTML string, writes the HTML to a PDF file, and saves the file to the appdata/pdfs
+    directory.
+    """
     html_content: str = render_html_invoice(
         purchase_response.name,
         purchase_response.credit_card_number[8:],

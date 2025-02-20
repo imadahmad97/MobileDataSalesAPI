@@ -14,3 +14,9 @@ class MobileDataPurchaseResponse:
         self.requested_mobile_data = requested_mobile_data
         self.status = status
         self.validation_errors = validation_errors
+
+    def update_status(self):
+        if self.validation_errors:
+            self.status = "Rejected"
+        else:
+            self.status = "Approved"

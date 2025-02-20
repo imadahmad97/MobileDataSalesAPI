@@ -11,7 +11,11 @@ from app.service.db_service import DatabaseService
 async def handle_single_mobile_data_purchase_request(
     binary_purchase_request: Request, db_service: DatabaseService
 ) -> JSONResponse:
-
+    """
+    This function handles a single mobile data purchase request. It builds a request from a
+    binary file, processes the request, and returns a JSON response with the status and BAN of the
+    request.
+    """
     purchase_request: MobileDataPurchaseRequest = (
         await MobileDataPurchaseRequest.build_request_from_binary_file(
             binary_purchase_request
@@ -32,7 +36,11 @@ async def handle_single_mobile_data_purchase_request(
 async def handle_bulk_mobile_upload_purchase_request(
     csv_path: str, db_service: DatabaseService
 ) -> JSONResponse:
-
+    """
+    This function handles a bulk mobile data purchase request. It builds a list of requests from a
+    binary csv file, processes the requests, and returns a JSON response with the status and BAN
+    of each request.
+    """
     responses: list[MobileDataPurchaseResponse] = []
 
     async for row in MobileDataPurchaseRequest.build_request_list_from_binary_csv(  # type: ignore
