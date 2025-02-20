@@ -1,15 +1,16 @@
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, Template
+from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
 import os
-from weasyprint import HTML
+from weasyprint import HTML  # type: ignore
 import datetime
 import qrcode
 import base64
 import io
 
 
-def generate_qr_code(billing_account_number):
-    url = f"https://telus.com/user/{billing_account_number}"
-    qr = qrcode.QRCode(
+def generate_qr_code(billing_account_number: str) -> str:
+    url: str = f"https://telus.com/user/{billing_account_number}"
+    qr: qrcode.QRCode = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
         box_size=5,
@@ -18,26 +19,27 @@ def generate_qr_code(billing_account_number):
     qr.add_data(url)
     qr.make(fit=True)
 
-    img = qr.make_image(fill="black", back_color="white")
+    img: qrcode.image.pil.PilImage = qr.make_image(fill="black", back_color="white")
 
-    buffer = io.BytesIO()
+    buffer: io.BytesIO = io.BytesIO()
     img.save(buffer, format="PNG")
-    qr_code_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    qr_code_base64: str = base64.b64encode(buffer.getvalue()).decode("utf-8")
+
     return qr_code_base64
 
 
 def render_html_invoice(
-    name,
-    credit_card_number,
-    billing_account_number,
-    requested_mobile_data,
-    status,
-    validation_errors,
-):
-    template_env = Environment(loader=FileSystemLoader("templates"))
-    invoice_template = template_env.get_template("invoice_template.html")
-    qr_code = generate_qr_code(billing_account_number)
-    data = {
+    name: str,
+    credit_card_number: str,
+    billing_account_number: str,
+    requested_mobile_data: str,
+    status: str,
+    validation_errors: str,
+) -> str:
+    template_env: Environment = Environment(loader=FileSystemLoader("templates"))
+    invoice_template: Template = template_env.get_template("invoice_template.html")
+    qr_code: str = generate_qr_code(billing_account_number)
+    data: dict = {
         "name": name,
         "credit_card_number": credit_card_number,
         "billing_account_number": billing_account_number,
@@ -47,13 +49,15 @@ def render_html_invoice(
         "date": datetime.datetime.now().strftime("%Y-%m-%d"),
         "qr_code": qr_code,
     }
-    return invoice_template.render(data)
+    html_invoice: str = invoice_template.render(data)
+
+    return html_invoice
 
 
 def generate_pdf_invoice(
-    purchase_response,
-):
-    html_content = render_html_invoice(
+    purchase_response: "MobileDataPurchaseResponse",
+) -> None:
+    html_content: str = render_html_invoice(
         purchase_response.name,
         purchase_response.credit_card_number[8:],
         purchase_response.billing_account_number,
@@ -61,7 +65,7 @@ def generate_pdf_invoice(
         purchase_response.status,
         purchase_response.validation_errors,
     )
-    filename = f"invoice_{purchase_response.billing_account_number}.pdf"
-    output_path = os.path.join("appdata/pdfs", filename)
+    filename: str = f"invoice_{purchase_response.billing_account_number}.pdf"
+    output_path: str = os.path.join("appdata/pdfs", filename)
 
     HTML(string=html_content).write_pdf(target=output_path)

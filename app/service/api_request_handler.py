@@ -35,7 +35,7 @@ async def handle_bulk_mobile_upload_purchase_request(
 
     responses: list[MobileDataPurchaseResponse] = []
 
-    async for row in MobileDataPurchaseRequest.build_request_list_from_binary_csv(
+    async for row in MobileDataPurchaseRequest.build_request_list_from_binary_csv(  # type: ignore
         csv_path
     ):
         responses.append(await process_mobile_data_purchase_request(row, db_service))

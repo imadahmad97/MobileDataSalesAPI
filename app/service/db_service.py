@@ -1,13 +1,14 @@
 import sqlite3
+from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
+from typing import Generator
 
 
 class DatabaseService:
-    def __init__(self):
-        # Allow the SQLite connection to be used across threads
-        self.con = sqlite3.connect(
+    def __init__(self) -> None:
+        self.con: sqlite3.Connection = sqlite3.connect(
             "appdata/database/mobile_data_sales_api.db", check_same_thread=False
         )
-        self.cur = self.con.cursor()
+        self.cur: sqlite3.Cursor = self.con.cursor()
         self.cur.execute(
             """CREATE TABLE IF NOT EXISTS 
             transactions (name TEXT, date_of_birth TEXT, credit_card_number TEXT,
@@ -17,11 +18,11 @@ class DatabaseService:
         self.con.commit()
 
     def record_transaction(
-        self,
-        purchase_request,
-        status,
-        validation_errors,
-    ):
+        self: "DatabaseService",
+        purchase_request: "MobileDataPurchaseRequest",
+        status: str,
+        validation_errors: str,
+    ) -> None:
         self.cur.execute(
             """INSERT INTO transactions (name, date_of_birth, credit_card_number, credit_card_expiration_date, 
             credit_card_cvv, billing_account_number, requested_mobile_data, status, validation_errors) 
@@ -40,15 +41,13 @@ class DatabaseService:
         )
         self.con.commit()
 
-    def close(self):
-        """Close database connection."""
+    def close(self: "DatabaseService") -> None:
         self.cur.close()
         self.con.close()
 
     @staticmethod
-    def get_db_service():
-        """Create a new DatabaseService instance for each request and ensure it is closed after use."""
-        db_service = DatabaseService()
+    def get_db_service() -> Generator["DatabaseService", None, None]:
+        db_service: DatabaseService = DatabaseService()
         try:
             yield db_service
         finally:

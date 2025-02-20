@@ -1,11 +1,15 @@
 from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
+from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 from app.interface.validation_interface import validate_purchase_request
 from app.service.invoice_generation_service import generate_pdf_invoice
+from app.service.db_service import DatabaseService
 
 
-async def process_mobile_data_purchase_request(purchase_request, db_service):
+async def process_mobile_data_purchase_request(
+    purchase_request: MobileDataPurchaseRequest, db_service: DatabaseService
+) -> MobileDataPurchaseResponse:
     # Prep Step: Initialize a new mobile data purchase response object:
-    purchase_response = MobileDataPurchaseResponse(
+    purchase_response: MobileDataPurchaseResponse = MobileDataPurchaseResponse(
         name=purchase_request.name,
         credit_card_number=purchase_request.credit_card_number,
         billing_account_number=purchase_request.billing_account_number,
@@ -15,16 +19,16 @@ async def process_mobile_data_purchase_request(purchase_request, db_service):
     )
     # Step 1: Validate the purchase request and append any validation errors to the response object
     purchase_response.validation_errors += validate_purchase_request(
-        purchase_request.date_of_birth,
+        purchase_request.date_of_birth,  # type: ignore
         purchase_request.credit_card_number,
-        purchase_request.credit_card_expiration_date,
+        purchase_request.credit_card_expiration_date,  # type: ignore
         purchase_request.credit_card_cvv,
     )
     # Step 2: Approve the purchase request if there are no validation errors
-    if not purchase_response.validation_errors:
-        purchase_response.status = "Approved"
-    else:
-        purchase_response.status = "Rejected"
+    purchase_response.status = (
+        "Approved" if not purchase_response.validation_errors else "Rejected"
+    )
+
     # Step 3: Save the purchase request to the database
     db_service.record_transaction(
         purchase_request,
