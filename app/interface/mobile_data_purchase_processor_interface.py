@@ -33,3 +33,6 @@ async def process_mobile_data_purchase_request(purchase_request, db_service):
     )
     # Step 3: Generate a PDF invoice for the purchase request
     generate_pdf_invoice(purchase_response)
+
+    # Return the purchase response object
+    return purchase_response

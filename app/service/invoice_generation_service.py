@@ -1,6 +1,5 @@
 from jinja2 import Environment, FileSystemLoader
 import os
-
 from weasyprint import HTML
 import datetime
 import qrcode
