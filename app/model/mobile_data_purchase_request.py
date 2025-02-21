@@ -3,38 +3,37 @@ import csv
 import base64
 from typing import Union, Type
 from fastapi import Request
+from pydantic import BaseModel, field_validator
+import logging
 
 
-class MobileDataPurchaseRequest:
-    def __init__(
-        self,
-        name: str,
-        date_of_birth: Union[str, datetime.datetime],
-        credit_card_number: str,
-        credit_card_expiration_date: Union[str, datetime.datetime],
-        credit_card_cvv: str,
-        billing_account_number: str,
-        requested_mobile_data: str,
-    ):
-        self.name: str = name
-        self.date_of_birth: Union[str, datetime.datetime] = date_of_birth
-        self.credit_card_number: str = credit_card_number
-        self.credit_card_expiration_date: Union[str, datetime.datetime] = (
-            credit_card_expiration_date
-        )
-        self.credit_card_cvv: str = credit_card_cvv
-        self.billing_account_number: str = billing_account_number
-        self.requested_mobile_data: str = requested_mobile_data
+class MobileDataPurchaseRequest(BaseModel):
 
-        self._convert_dates_to_datetime()
+    name: str
+    date_of_birth: datetime.datetime
+    credit_card_number: str
+    credit_card_expiration_date: datetime.datetime
+    credit_card_cvv: str
+    billing_account_number: str
+    requested_mobile_data: str
 
-    def _convert_dates_to_datetime(self: "MobileDataPurchaseRequest") -> None:
-        self.date_of_birth: datetime.datetime = datetime.datetime.strptime(self.date_of_birth, "%m/%d/%Y")  # type: ignore
-        self.credit_card_expiration_date: (  # type: ignore
-            datetime.datetime
-        ) = datetime.datetime.strptime(
-            self.credit_card_expiration_date, "%m/%y"  # type: ignore
-        )
+    @field_validator("date_of_birth", mode="before")
+    @classmethod
+    def parse_date_of_birth(
+        cls, value: Union[str, datetime.datetime]
+    ) -> datetime.datetime:
+        if isinstance(value, str):
+            return datetime.datetime.strptime(value, "%m/%d/%Y")
+        return value
+
+    @field_validator("credit_card_expiration_date", mode="before")
+    @classmethod
+    def parse_credit_card_expiration(
+        cls, value: Union[str, datetime.datetime]
+    ) -> datetime.datetime:
+        if isinstance(value, str):
+            return datetime.datetime.strptime(value, "%m/%y")
+        return value
 
     @classmethod
     async def build_request_from_binary_file(

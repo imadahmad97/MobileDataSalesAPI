@@ -3,11 +3,14 @@ from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 from app.interface.validation_interface import validate_purchase_request
 from app.service.invoice_generation_service import generate_pdf_invoice
 from app.service.db_service import DatabaseService
+import logging
 
 
 async def process_mobile_data_purchase_request(
     purchase_request: MobileDataPurchaseRequest, db_service: DatabaseService
 ) -> MobileDataPurchaseResponse:
+
+    logging.info("Initializing a new mobile data purchase response object")
     # Prep Step: Initialize a new mobile data purchase response object:
     purchase_response: MobileDataPurchaseResponse = MobileDataPurchaseResponse(
         name=purchase_request.name,
@@ -17,6 +20,8 @@ async def process_mobile_data_purchase_request(
         status="",
         validation_errors="",
     )
+
+    logging.info("Validating the mobile data purchase request")
     # Step 1: Validate the purchase request and append any validation errors to the response object
     purchase_response.validation_errors += validate_purchase_request(
         purchase_request.date_of_birth,  # type: ignore
@@ -24,16 +29,21 @@ async def process_mobile_data_purchase_request(
         purchase_request.credit_card_expiration_date,  # type: ignore
         purchase_request.credit_card_cvv,
     )
+
+    logging.info("Updating the status of the mobile data purchase request")
     # Step 2: Approve the purchase request if there are no validation errors
     purchase_response.update_status()
 
+    logging.info("Recording the mobile data purchase request to the database")
     # Step 3: Save the purchase request to the database
     db_service.record_transaction(
         purchase_request,
         purchase_response.status,
         purchase_response.validation_errors,
     )
-    # Step 3: Generate a PDF invoice for the purchase request
+
+    logging.info("Generating a PDF invoice for the mobile data purchase request")
+    # Step 4: Generate a PDF invoice for the purchase request
     generate_pdf_invoice(purchase_response)
 
     # Return the purchase response object

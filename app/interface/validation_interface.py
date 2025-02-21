@@ -1,6 +1,7 @@
 from luhncheck import is_luhn
 import os
 import datetime
+import logging
 
 
 def validate_purchase_request(
@@ -9,6 +10,8 @@ def validate_purchase_request(
     credit_card_expiration_date: datetime.datetime,
     credit_card_cvv: str,
 ) -> str:
+
+    logging.info("Initializing the purchase request validation process")
     # Prep Step: Initialize validation errors list
     validation_errors: str = ""
 
@@ -23,22 +26,27 @@ def validate_purchase_request(
     maximum_cvv_length: int = int(os.getenv("MAXIMUM_CVV_LENGTH", 4))
     legal_age: int = int(os.getenv("LEGAL_AGE", 18))
 
+    logging.info("Validating the customer is of legal age")
     # Step 1: Validate that the requestor is of legal age
     validation_errors += is_customer_of_legal_age(date_of_birth, legal_age)
 
+    logging.info("Validating the credit card number length")
     # Step 2: Validate the credit card number length
     validation_errors += is_credit_card_number_length_valid(
         credit_card_number, minimum_card_number_length, maximum_card_number_length
     )
 
+    logging.info("Validating the credit card number")
     # Step 3: Validate the credit card number
     validation_errors += is_credit_card_number_valid(credit_card_number)
 
+    logging.info("Validating the credit card cvv")
     # Step 4: Validate the credit card cvv
     validation_errors += is_cvv_valid(
         credit_card_cvv, minimum_cvv_length, maximum_cvv_length
     )
 
+    logging.info("Validating the credit card expiration date")
     # Step 5: Validate the credit card expiration date
     validation_errors += is_credit_card_expired(credit_card_expiration_date)
 

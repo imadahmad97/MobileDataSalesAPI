@@ -16,6 +16,7 @@ import datetime
 import qrcode
 import base64
 import io
+import logging
 
 
 def generate_qr_code(billing_account_number: str) -> str:
@@ -24,6 +25,7 @@ def generate_qr_code(billing_account_number: str) -> str:
     adds the URL with the billing account number, and returns the base64 encoded string of the
     qr code.
     """
+    logging.info("Generating a QR code for the billing account number")
     url: str = f"https://telus.com/user/{billing_account_number}"
     qr: qrcode.QRCode = qrcode.QRCode(
         version=1,
@@ -55,6 +57,7 @@ def render_html_invoice(
     This function renders an HTML invoice containing the proided data and generated QR code. It
     returns the rendered HTML as a string.
     """
+    logging.info("Rendering the HTML invoice")
     template_env: Environment = Environment(loader=FileSystemLoader("templates"))
     invoice_template: Template = template_env.get_template("invoice_template.html")
     qr_code: str = generate_qr_code(billing_account_number)
