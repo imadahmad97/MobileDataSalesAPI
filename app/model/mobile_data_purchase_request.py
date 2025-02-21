@@ -103,10 +103,10 @@ class MobileDataPurchaseRequest(BaseModel):
 
         for line_number, line in enumerate(decoded_text.split("\n"), start=1):
             if not line.strip():
-                continue  # Skip empty lines
+                continue
 
             if ":" not in line:
-                continue  # Skip invalid lines; will be caught in validation
+                continue
 
             key, value = line.split(":", 1)
             key = key.lower().replace(" ", "_").strip()
@@ -114,7 +114,6 @@ class MobileDataPurchaseRequest(BaseModel):
 
             parsed_data[key] = value
 
-        # Validate extracted data
         errors = MobileDataPurchaseRequest._validate_parsed_data(parsed_data)
 
         if errors:

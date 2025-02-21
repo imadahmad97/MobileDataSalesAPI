@@ -1,3 +1,20 @@
+"""
+This module contains the routes for the mobile data sales API.
+
+Dependencies:
+    - FastAPI
+    - Request
+    - JSONResponse
+    - DatabaseService
+    - handle_single_mobile_data_purchase_request
+    - handle_bulk_mobile_upload_purchase_request
+    - logging
+    
+Routes:
+    - mobile_data_purchase_request_route
+    - bulk_mobile_data_purchase_request_route
+"""
+
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
 from app.service.db_service import DatabaseService
@@ -25,6 +42,9 @@ async def mobile_data_purchase_request_route(
     binary_purchase_request: Request,
     db_service: DatabaseService = Depends(DatabaseService.get_db_service),
 ) -> JSONResponse:
+    """
+    This route handles a single mobile data purchase request.
+    """
 
     logging.info("Received a mobile data purchase request")
 
@@ -42,6 +62,9 @@ async def bulk_mobile_data_purchase_request_route(
     csv_path: str,
     db_service: DatabaseService = Depends(DatabaseService.get_db_service),
 ) -> JSONResponse:
+    """
+    This route handles a bulk mobile data purchase request.
+    """
 
     logging.info("Received a bulk mobile data purchase request")
 
