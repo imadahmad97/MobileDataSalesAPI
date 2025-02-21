@@ -1,14 +1,37 @@
+"""
+This module contains the interface for processing a mobile data purchase request. It contains a
+function that processes a mobile data purchase request. The function validates the request, updates
+the status of the request, records the request to the database, and generates a PDF invoice for the
+request.
+
+Dependencies:
+    - app.model.mobile_data_purchase_response.MobileDataPurchaseResponse
+    - app.model.mobile_data_purchase_request.MobileDataPurchaseRequest
+    - app.interface.validation_interface.validate_purchase_request
+    - app.service.invoice_generation_service.generate_pdf_invoice
+    - app.service.db_service.DatabaseService
+    - logging
+
+Methods:
+    - process_mobile_data_purchase_request
+"""
+
+import logging
 from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
 from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 from app.interface.validation_interface import validate_purchase_request
 from app.service.invoice_generation_service import generate_pdf_invoice
 from app.service.db_service import DatabaseService
-import logging
 
 
 async def process_mobile_data_purchase_request(
     purchase_request: MobileDataPurchaseRequest, db_service: DatabaseService
 ) -> MobileDataPurchaseResponse:
+    """
+    This function processes a mobile data purchase request. It validates the request, updates the
+    status of the request, records the request to the database, and generates a PDF invoice for the
+    request.
+    """
 
     logging.info("Initializing a new mobile data purchase response object")
     # Prep Step: Initialize a new mobile data purchase response object:

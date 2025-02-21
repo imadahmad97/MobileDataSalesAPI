@@ -2,21 +2,33 @@
 This module contains the functions for generating invoices. It includes a function for generating a
 QR code, a function for rendering an HTML invoice, and a function for generating a PDF invoice.
 
-Functions:
+Dependencies:
+    - jinja2.Environment
+    - jinja2.FileSystemLoader
+    - jinja2.Template
+    - os
+    - weasyprint.HTML
+    - datetime
+    - qrcode
+    - base64
+    - io
+    - logging
+
+Methods:
     generate_qr_code
     render_html_invoice
     generate_pdf_invoice
 """
 
-from jinja2 import Environment, FileSystemLoader, Template
-from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
 import os
-from weasyprint import HTML  # type: ignore
 import datetime
-import qrcode
 import base64
 import io
 import logging
+from jinja2 import Environment, FileSystemLoader, Template
+from weasyprint import HTML  # type: ignore
+import qrcode
+from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
 
 
 def generate_qr_code(billing_account_number: str) -> str:
@@ -46,12 +58,7 @@ def generate_qr_code(billing_account_number: str) -> str:
 
 
 def render_html_invoice(
-    name: str,
-    credit_card_number: str,
-    billing_account_number: str,
-    requested_mobile_data: str,
-    status: str,
-    validation_errors: str,
+    purchase_response: "MobileDataPurchaseResponse",
 ) -> str:
     """
     This function renders an HTML invoice containing the proided data and generated QR code. It
@@ -60,14 +67,14 @@ def render_html_invoice(
     logging.info("Rendering the HTML invoice")
     template_env: Environment = Environment(loader=FileSystemLoader("templates"))
     invoice_template: Template = template_env.get_template("invoice_template.html")
-    qr_code: str = generate_qr_code(billing_account_number)
+    qr_code: str = generate_qr_code(purchase_response.billing_account_number)
     data: dict = {
-        "name": name,
-        "credit_card_number": credit_card_number,
-        "billing_account_number": billing_account_number,
-        "requested_mobile_data": requested_mobile_data,
-        "status": status,
-        "validation_errors": validation_errors,
+        "name": purchase_response.name,
+        "credit_card_number": purchase_response.credit_card_number,
+        "billing_account_number": purchase_response.billing_account_number,
+        "requested_mobile_data": purchase_response.requested_mobile_data,
+        "status": purchase_response.status,
+        "validation_errors": purchase_response.validation_errors,
         "date": datetime.datetime.now().strftime("%Y-%m-%d"),
         "qr_code": qr_code,
     }
@@ -84,14 +91,7 @@ def generate_pdf_invoice(
     invoice as an HTML string, writes the HTML to a PDF file, and saves the file to the appdata/pdfs
     directory.
     """
-    html_content: str = render_html_invoice(
-        purchase_response.name,
-        purchase_response.credit_card_number[8:],
-        purchase_response.billing_account_number,
-        purchase_response.requested_mobile_data,
-        purchase_response.status,
-        purchase_response.validation_errors,
-    )
+    html_content: str = render_html_invoice(purchase_response)
     filename: str = f"invoice_{purchase_response.billing_account_number}.pdf"
     output_path: str = os.path.join("appdata/pdfs", filename)
 

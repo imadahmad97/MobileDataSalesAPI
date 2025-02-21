@@ -1,10 +1,33 @@
+"""
+This module contains the DatabaseService class, which provides a service for interacting with the
+SQLite database.
+
+Dependencies:
+    - sqlite3
+    - app.model.mobile_data_purchase_request.MobileDataPurchaseRequest
+    - typing.Generator
+    
+Methods:
+    - __init__
+    - record_transaction
+    - close
+    - get_db_service
+"""
+
 import sqlite3
-from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 from typing import Generator
+from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 
 
 class DatabaseService:
+    """
+    This class provides a service for interacting with the SQLite database."""
+
     def __init__(self) -> None:
+        """
+        This method initializes the DatabaseService class by creating a connection to the SQLite
+        database and creating a table to store transactions if it does not already exist.
+        """
         self.con: sqlite3.Connection = sqlite3.connect(
             "appdata/database/mobile_data_sales_api.db", check_same_thread=False
         )
@@ -23,9 +46,14 @@ class DatabaseService:
         status: str,
         validation_errors: str,
     ) -> None:
+        """
+        This method records a transaction in the database with the provided purchase request, status
+        and validation errors.
+        """
         self.cur.execute(
-            """INSERT INTO transactions (name, date_of_birth, credit_card_number, credit_card_expiration_date, 
-            credit_card_cvv, billing_account_number, requested_mobile_data, status, validation_errors) 
+            """INSERT INTO transactions (name, date_of_birth, credit_card_number, 
+            credit_card_expiration_date, credit_card_cvv, billing_account_number, 
+            requested_mobile_data, status, validation_errors) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 purchase_request.name,
@@ -42,11 +70,18 @@ class DatabaseService:
         self.con.commit()
 
     def close(self: "DatabaseService") -> None:
+        """
+        This method closes the connection to the SQLite database.
+        """
         self.cur.close()
         self.con.close()
 
     @staticmethod
     def get_db_service() -> Generator["DatabaseService", None, None]:
+        """
+        This method is a generator function that yields a DatabaseService object and closes the
+        connection to the SQLite database when the generator is finished.
+        """
         db_service: DatabaseService = DatabaseService()
         try:
             yield db_service

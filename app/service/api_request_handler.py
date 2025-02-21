@@ -1,12 +1,31 @@
+"""
+This module contains functions that handle API requests. The functions in this module are called by
+the FastAPI routes defined in main.py. The functions in this module build a request from a binary
+file, process the request, and return a JSON response with the status and BAN of the request.
+
+Dependencies:
+    - app.model.mobile_data_purchase_request.MobileDataPurchaseRequest
+    - app.model.mobile_data_purchase_response.MobileDataPurchaseResponse
+    - app.interface.mobile_data_purchase_processor_interface.process_mobile_data_purchase_request
+    - fastapi.responses.JSONResponse
+    - fastapi.Request
+    - app.service.db_service.DatabaseService
+    - logging
+
+Methods:
+    - handle_single_mobile_data_purchase_request
+    - handle_bulk_mobile_upload_purchase_request
+"""
+
+import logging
+from fastapi.responses import JSONResponse
+from fastapi import Request
+from app.service.db_service import DatabaseService
 from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
 from app.interface.mobile_data_purchase_processor_interface import (
     process_mobile_data_purchase_request,
 )
-from fastapi.responses import JSONResponse
-from fastapi import Request
-from app.service.db_service import DatabaseService
-import logging
 
 
 async def handle_single_mobile_data_purchase_request(
@@ -26,6 +45,7 @@ async def handle_single_mobile_data_purchase_request(
     )
 
     logging.info("Processing the mobile data purchase request")
+
     purchase_response: MobileDataPurchaseResponse = (
         await process_mobile_data_purchase_request(purchase_request, db_service)
     )
@@ -55,12 +75,16 @@ async def handle_bulk_mobile_upload_purchase_request(
 
     logging.info("Processing the mobile data purchase requests")
 
-    async for row in MobileDataPurchaseRequest.build_request_list_from_binary_csv(  # type: ignore
+    for row in MobileDataPurchaseRequest.build_request_list_from_binary_csv(  # type: ignore
         csv_path
     ):
         responses.append(await process_mobile_data_purchase_request(row, db_service))
+        logging.info(
+            "Successfully processed a mobile data purchase request, BAN: %s",
+            row.billing_account_number,
+        )
 
-    logging.info("Successfully processed the mobile data purchase requests")
+    logging.info("Successfully processed the bulk mobile data purchase requests")
 
     return JSONResponse(
         content={
