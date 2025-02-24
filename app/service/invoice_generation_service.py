@@ -79,7 +79,7 @@ def render_html_invoice(
         qr_code: str = generate_qr_code(purchase_response.billing_account_number)
         data: dict = {
             "name": purchase_response.name,
-            "credit_card_number": purchase_response.credit_card_number,
+            "credit_card_number": purchase_response.credit_card_number[:-8],
             "billing_account_number": purchase_response.billing_account_number,
             "requested_mobile_data": purchase_response.requested_mobile_data,
             "status": purchase_response.status,
