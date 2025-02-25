@@ -9,7 +9,7 @@ Dependencies:
     - app.model.mobile_data_purchase_request.MobileDataPurchaseRequest
     - app.interface.validation_interface.validate_purchase_request
     - app.service.invoice_generation_service.generate_pdf_invoice
-    - app.service.db_service.DatabaseService
+    - app.service.db_service.DataBaseService
     - logging
 
 Methods:
@@ -22,11 +22,12 @@ from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
 from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 from app.interface.validation_interface import validate_purchase_request
 from app.service.invoice_generation_service import generate_pdf_invoice
-from app.service.db_service import DatabaseService
+from app.service.db_service import DataBaseService
+from sqlalchemy.orm import Session
 
 
 async def process_mobile_data_purchase_request(
-    purchase_request: MobileDataPurchaseRequest, db_service: DatabaseService
+    purchase_request: MobileDataPurchaseRequest, db_session: Session
 ) -> MobileDataPurchaseResponse:
     """
     This function processes a mobile data purchase request. It validates the request, updates the
@@ -60,10 +61,11 @@ async def process_mobile_data_purchase_request(
 
         logging.info("Recording the mobile data purchase request to the database")
         # Step 3: Save the purchase request to the database
-        db_service.record_transaction(
+        DataBaseService.record_transaction(
             purchase_request,
             purchase_response.status,
             purchase_response.validation_errors,
+            db_session,
         )
 
         logging.info("Generating a PDF invoice for the mobile data purchase request")
