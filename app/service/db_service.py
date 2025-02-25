@@ -1,10 +1,13 @@
 from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 from app.model.mobile_data_purchase_transaction import MobileDataPurchaseTransaction
 from sqlmodel import Session, SQLModel, create_engine
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 class DataBaseService:
-    sqlite_file_name = "/appdata/database/mobile_data_sales_api.db"
+    sqlite_file_name = BASE_DIR / "appdata" / "database" / "mobile_data_sales_api.db"
     sqlite_url = f"sqlite:///{sqlite_file_name}"
 
     def __init__(self):
@@ -31,7 +34,14 @@ class DataBaseService:
                 purchase_request, status, validation_errors
             )
         )
+        print("Step 1")
         session.add(transaction)
-        session.commit()
+        print("Step 2")
+        try:
+            session.commit()
+            print("Step 3")
+        except Exception as e:
+            print(e)
         session.refresh(transaction)
+        print("Step 4")
         return transaction
