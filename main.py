@@ -33,9 +33,13 @@ DB_SESSION = Annotated[Session, Depends(db_service.get_db_session)]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    DataBaseService().create_db_and_tables()
+    """
+    This context manager initializes the database and tables when the FastAPI application is started
+    and closes the database connection when the FastAPI application is stopped.
+    """
+    db_service.create_db_and_tables()
     yield
-    DataBaseService().close_db_connection()
+    db_service.close_db_connection()
 
 
 app: FastAPI = FastAPI(lifespan=lifespan)

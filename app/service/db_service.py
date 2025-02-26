@@ -1,3 +1,9 @@
+"""
+This module contains the database service class. The class is responsible for creating the database
+and tables, closing the database connection, and providing a database session for interacting with
+the database.
+"""
+
 from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 from app.model.mobile_data_purchase_transaction import MobileDataPurchaseTransaction
 from sqlmodel import Session, SQLModel, create_engine
