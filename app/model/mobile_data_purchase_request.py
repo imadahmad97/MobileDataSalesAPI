@@ -21,7 +21,7 @@ from fastapi import Request, HTTPException
 from pydantic import BaseModel, field_validator
 
 
-class MobileDataPurchaseRequest(BaseModel):
+class MobileDataPurchaseRequest(BaseModel):  # CHANGE BINARY TO BE PLAOIN TEXT
     """
     This class represents a mobile data purchase request. It contains both the attributes of the
     request and methods for parsing the request from a binary file and a binary CSV file.

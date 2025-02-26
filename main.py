@@ -47,7 +47,7 @@ app: FastAPI = FastAPI(lifespan=lifespan)
 
 @app.post("/mobile-data-purchase-request")
 async def mobile_data_purchase_request_route(
-    binary_purchase_request: Request,
+    binary_purchase_request: Request,  # CHANGE TO PURCHASE REQUEST
     DB_SESSION: Annotated[Session, Depends(db_service.get_db_session)],
 ) -> JSONResponse:
     """

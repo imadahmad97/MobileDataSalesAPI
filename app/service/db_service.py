@@ -17,7 +17,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 class DataBaseService:
-    sqlite_file_name = BASE_DIR / "appdata" / "database" / "mobile_data_sales_api.db"
+    sqlite_file_name = (
+        BASE_DIR / "appdata" / "database" / "mobile_data_sales_api.db"
+    )  # CHANGE: MOVE TO INIT
     sqlite_url = f"sqlite:///{sqlite_file_name}"
 
     def __init__(self):
