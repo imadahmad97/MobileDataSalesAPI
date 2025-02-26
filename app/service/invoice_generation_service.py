@@ -16,7 +16,7 @@ import logging
 from fastapi import HTTPException
 from jinja2 import Environment, FileSystemLoader, Template
 from weasyprint import HTML  # type: ignore
-import qrcode
+import qrcode  # type: ignore
 from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
 
 logger = logging.getLogger(__name__)
