@@ -21,10 +21,25 @@ class DataBaseService:
         )
 
     def create_db_and_tables(self):
+        """
+        This method creates the database and tables if they do not exist. It is called when the
+        FastAPI application is started.
+        """
         logger.info("Creating the database and tables")
         SQLModel.metadata.create_all(self.engine)
 
+    def close_db_connection(self):
+        """
+        This method closes the database connection. It is called when the FastAPI application is
+        stopped.
+        """
+        logger.info("Closing the database connection")
+        self.engine.dispose()
+
     def get_db_session(self):
+        """
+        This method returns a database session. The session is used to interact with the database.
+        """
         with Session(self.engine) as session:
             yield session
 
@@ -35,6 +50,11 @@ class DataBaseService:
         validation_errors: str,
         session: Session,
     ) -> MobileDataPurchaseTransaction:
+        """
+        This method records a transaction to the database. It is called by the
+        process_mobile_data_purchase_request function after the request has been validated and
+        processed.
+        """
         transaction = (
             MobileDataPurchaseTransaction.build_transaction_from_request_and_response(
                 purchase_request, status, validation_errors

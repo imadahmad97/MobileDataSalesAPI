@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 async def handle_single_mobile_data_purchase_request(
-    binary_purchase_request: Request, db_service: Session
+    binary_purchase_request: Request, db_session: Session
 ) -> JSONResponse:
     """
     This function handles a single mobile data purchase request. It builds a request from a
@@ -43,7 +43,7 @@ async def handle_single_mobile_data_purchase_request(
         logger.info("Processing the mobile data purchase request")
 
         purchase_response: MobileDataPurchaseResponse = (
-            await process_mobile_data_purchase_request(purchase_request, db_service)
+            await process_mobile_data_purchase_request(purchase_request, db_session)
         )
 
         logger.info("Successfully processed the mobile data purchase request")
@@ -62,7 +62,7 @@ async def handle_single_mobile_data_purchase_request(
 
 
 async def handle_bulk_mobile_upload_purchase_request(
-    csv_path: str, db_service: Session
+    csv_path: str, db_session: Session
 ) -> JSONResponse:
     """
     This function handles a bulk mobile data purchase request. It builds a list of requests from a
@@ -82,7 +82,7 @@ async def handle_bulk_mobile_upload_purchase_request(
             csv_path
         ):
             responses.append(
-                await process_mobile_data_purchase_request(row, db_service)
+                await process_mobile_data_purchase_request(row, db_session)
             )
 
             logger.info(

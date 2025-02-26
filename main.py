@@ -2,8 +2,13 @@
 This module contains the routes for the mobile data sales API.
     
 Routes:
-    - mobile_data_purchase_request_route
-    - bulk_mobile_data_purchase_request_route
+    /mobile-data-purchase-request
+        parameters: binary_purchase_request: Request
+        methods: POST
+    
+    /bulk-mobile-data-purchase-request
+        parameters: csv_path: str
+        methods: POST
 """
 
 from fastapi import FastAPI, Request, Depends
@@ -16,13 +21,24 @@ from app.service.api_request_handler import (
 import logging
 from sqlalchemy.orm import Session
 from typing import Annotated
+from contextlib import asynccontextmanager
 
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
+
 db_service = DataBaseService()
 DB_SESSION = Annotated[Session, Depends(db_service.get_db_session)]
-app: FastAPI = FastAPI()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    DataBaseService().create_db_and_tables()
+    yield
+    DataBaseService().close_db_connection()
+
+
+app: FastAPI = FastAPI(lifespan=lifespan)
 
 
 @app.post("/mobile-data-purchase-request")
@@ -31,7 +47,9 @@ async def mobile_data_purchase_request_route(
     DB_SESSION: Annotated[Session, Depends(db_service.get_db_session)],
 ) -> JSONResponse:
     """
-    This route handles a single mobile data purchase request.
+    This route handles a single mobile data purchase request. It takes a binary file as input and
+    feeds it to the handle_single_mobile_data_purchase_request function. The function processes the
+    route then returns the JSON response from the handler function.
     """
 
     logger.info("Received a mobile data purchase request")
@@ -51,7 +69,9 @@ async def bulk_mobile_data_purchase_request_route(
     DB_SESSION: Annotated[Session, Depends(db_service.get_db_session)],
 ) -> JSONResponse:
     """
-    This route handles a bulk mobile data purchase request.
+    This route handles a bulk mobile data purchase request. It takes a CSV file path as input and
+    feeds it to the handle_bulk_mobile_upload_purchase_request function. The function processes the
+    route then returns the JSON response from the handler function.
     """
 
     logger.info("Received a bulk mobile data purchase request")
