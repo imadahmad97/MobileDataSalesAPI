@@ -4,14 +4,6 @@ function that processes a mobile data purchase request. The function validates t
 the status of the request, records the request to the database, and generates a PDF invoice for the
 request.
 
-Dependencies:
-    - app.model.mobile_data_purchase_response.MobileDataPurchaseResponse
-    - app.model.mobile_data_purchase_request.MobileDataPurchaseRequest
-    - app.interface.validation_interface.validate_purchase_request
-    - app.service.invoice_generation_service.generate_pdf_invoice
-    - app.service.db_service.DataBaseService
-    - logging
-
 Methods:
     - process_mobile_data_purchase_request
 """
@@ -25,6 +17,9 @@ from app.service.invoice_generation_service import generate_pdf_invoice
 from app.service.db_service import DataBaseService
 from sqlalchemy.orm import Session
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+
 
 async def process_mobile_data_purchase_request(
     purchase_request: MobileDataPurchaseRequest, db_session: Session
@@ -35,7 +30,7 @@ async def process_mobile_data_purchase_request(
     request.
     """
     try:
-        logging.info("Initializing a new mobile data purchase response object")
+        logger.info("Initializing a new mobile data purchase response object")
         # Prep Step: Initialize a new mobile data purchase response object:
         purchase_response: MobileDataPurchaseResponse = MobileDataPurchaseResponse(
             name=purchase_request.name,
@@ -46,7 +41,7 @@ async def process_mobile_data_purchase_request(
             validation_errors="",
         )
 
-        logging.info("Validating the mobile data purchase request")
+        logger.info("Validating the mobile data purchase request")
         # Step 1: Validate the purchase request and append any validation errors to the response object
         purchase_response.validation_errors += validate_purchase_request(
             purchase_request.date_of_birth,  # type: ignore
@@ -55,11 +50,11 @@ async def process_mobile_data_purchase_request(
             purchase_request.credit_card_cvv,
         )
 
-        logging.info("Updating the status of the mobile data purchase request")
+        logger.info("Updating the status of the mobile data purchase request")
         # Step 2: Approve the purchase request if there are no validation errors
         purchase_response.update_status()
 
-        logging.info("Recording the mobile data purchase request to the database")
+        logger.info("Recording the mobile data purchase request to the database")
         # Step 3: Save the purchase request to the database
         DataBaseService.record_transaction(
             purchase_request,
@@ -68,14 +63,14 @@ async def process_mobile_data_purchase_request(
             db_session,
         )
 
-        logging.info("Generating a PDF invoice for the mobile data purchase request")
+        logger.info("Generating a PDF invoice for the mobile data purchase request")
         # Step 4: Generate a PDF invoice for the purchase request
         generate_pdf_invoice(purchase_response)
 
         # Return the purchase response object
         return purchase_response
     except Exception:
-        logging.error("Failed to process the mobile data purchase request")
+        logger.error("Failed to process the mobile data purchase request")
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to process the mobile data purchase request",

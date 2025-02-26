@@ -1,14 +1,5 @@
 """
 This module contains the routes for the mobile data sales API.
-
-Dependencies:
-    - FastAPI
-    - Request
-    - JSONResponse
-    - DataBaseService
-    - handle_single_mobile_data_purchase_request
-    - handle_bulk_mobile_upload_purchase_request
-    - logging
     
 Routes:
     - mobile_data_purchase_request_route
@@ -26,15 +17,9 @@ import logging
 from sqlalchemy.orm import Session
 from typing import Annotated
 
-logging.getLogger("fontTools").setLevel(logging.ERROR)
-logging.getLogger("fontTools.subset").setLevel(logging.ERROR)
-logging.getLogger("fontTools.ttLib.ttFont").setLevel(logging.ERROR)
-logging.getLogger("weasyprint").setLevel(logging.ERROR)
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s:%(name)s:%(message)s",
-)
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 db_service = DataBaseService()
 DB_SESSION = Annotated[Session, Depends(db_service.get_db_session)]
 app: FastAPI = FastAPI()
@@ -49,13 +34,13 @@ async def mobile_data_purchase_request_route(
     This route handles a single mobile data purchase request.
     """
 
-    logging.info("Received a mobile data purchase request")
+    logger.info("Received a mobile data purchase request")
 
     response: JSONResponse = await handle_single_mobile_data_purchase_request(
         binary_purchase_request, DB_SESSION
     )
 
-    logging.info("Successfully completed the mobile data purchase request")
+    logger.info("Successfully completed the mobile data purchase request")
 
     return response
 
@@ -69,12 +54,12 @@ async def bulk_mobile_data_purchase_request_route(
     This route handles a bulk mobile data purchase request.
     """
 
-    logging.info("Received a bulk mobile data purchase request")
+    logger.info("Received a bulk mobile data purchase request")
 
     response: JSONResponse = await handle_bulk_mobile_upload_purchase_request(
         csv_path, DB_SESSION
     )
 
-    logging.info("Successfully completed the bulk mobile data purchase request")
+    logger.info("Successfully completed the bulk mobile data purchase request")
 
     return response

@@ -2,6 +2,10 @@ from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
 from app.model.mobile_data_purchase_transaction import MobileDataPurchaseTransaction
 from sqlmodel import Session, SQLModel, create_engine
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -11,11 +15,13 @@ class DataBaseService:
     sqlite_url = f"sqlite:///{sqlite_file_name}"
 
     def __init__(self):
+        logger.info("Initializing the database service")
         self.engine = create_engine(
             self.__class__.sqlite_url, connect_args={"check_same_thread": False}
         )
 
     def create_db_and_tables(self):
+        logger.info("Creating the database and tables")
         SQLModel.metadata.create_all(self.engine)
 
     def get_db_session(self):
@@ -34,14 +40,8 @@ class DataBaseService:
                 purchase_request, status, validation_errors
             )
         )
-        print("Step 1")
+        logger.info("Committing the transaction to the database")
         session.add(transaction)
-        print("Step 2")
-        try:
-            session.commit()
-            print("Step 3")
-        except Exception as e:
-            print(e)
+        session.commit()
         session.refresh(transaction)
-        print("Step 4")
         return transaction

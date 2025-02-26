@@ -3,15 +3,6 @@ This module contains functions that handle API requests. The functions in this m
 the FastAPI routes defined in main.py. The functions in this module build a request from a binary
 file, process the request, and return a JSON response with the status and BAN of the request.
 
-Dependencies:
-    - app.model.mobile_data_purchase_request.MobileDataPurchaseRequest
-    - app.model.mobile_data_purchase_response.MobileDataPurchaseResponse
-    - app.interface.mobile_data_purchase_processor_interface.process_mobile_data_purchase_request
-    - fastapi.responses.JSONResponse
-    - fastapi.Request
-    - app.service.db_service.DataBaseService
-    - logging
-
 Methods:
     - handle_single_mobile_data_purchase_request
     - handle_bulk_mobile_upload_purchase_request
@@ -28,6 +19,9 @@ from app.interface.mobile_data_purchase_processor_interface import (
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+
 
 async def handle_single_mobile_data_purchase_request(
     binary_purchase_request: Request, db_service: Session
@@ -38,7 +32,7 @@ async def handle_single_mobile_data_purchase_request(
     request.
     """
     try:
-        logging.info("Building a mobile data purchase request from a binary file")
+        logger.info("Building a mobile data purchase request from a binary file")
 
         purchase_request: MobileDataPurchaseRequest = (
             await MobileDataPurchaseRequest.build_request_from_binary_file(
@@ -46,13 +40,13 @@ async def handle_single_mobile_data_purchase_request(
             )
         )
 
-        logging.info("Processing the mobile data purchase request")
+        logger.info("Processing the mobile data purchase request")
 
         purchase_response: MobileDataPurchaseResponse = (
             await process_mobile_data_purchase_request(purchase_request, db_service)
         )
 
-        logging.info("Successfully processed the mobile data purchase request")
+        logger.info("Successfully processed the mobile data purchase request")
 
         return JSONResponse(
             content={
@@ -60,7 +54,7 @@ async def handle_single_mobile_data_purchase_request(
             }
         )
     except Exception:
-        logging.error("Failed to process the mobile data purchase request")
+        logger.error("Failed to process the mobile data purchase request")
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to process the mobile data purchase request",
@@ -76,13 +70,13 @@ async def handle_bulk_mobile_upload_purchase_request(
     of each request.
     """
     try:
-        logging.info(
+        logger.info(
             "Building a list of mobile data purchase requests from a binary CSV file"
         )
 
         responses: list[MobileDataPurchaseResponse] = []
 
-        logging.info("Processing the mobile data purchase requests")
+        logger.info("Processing the mobile data purchase requests")
 
         for row in MobileDataPurchaseRequest.build_request_list_from_binary_csv(  # type: ignore
             csv_path
@@ -91,12 +85,12 @@ async def handle_bulk_mobile_upload_purchase_request(
                 await process_mobile_data_purchase_request(row, db_service)
             )
 
-            logging.info(
+            logger.info(
                 "Successfully processed a mobile data purchase request, BAN: %s",
                 row.billing_account_number,
             )
 
-        logging.info("Successfully processed the bulk mobile data purchase requests")
+        logger.info("Successfully processed the bulk mobile data purchase requests")
 
         return JSONResponse(
             content={
@@ -105,7 +99,7 @@ async def handle_bulk_mobile_upload_purchase_request(
             }
         )
     except Exception:
-        logging.error("Failed to process the bulk mobile data purchase requests")
+        logger.error("Failed to process the bulk mobile data purchase requests")
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to process the bulk mobile data purchase requests",

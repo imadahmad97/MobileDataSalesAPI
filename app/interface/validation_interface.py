@@ -4,12 +4,6 @@ of legal age, if the credit card number is valid, if the credit card number leng
 credit card cvv is valid, and if the credit card expiration date is valid. It returns a string of
 validation errors.
 
-Dependencies:
-    - datetime
-    - luhncheck.is_luhn
-    - os
-    - logging
-    
 Methods:
     - validate_purchase_request
     - is_customer_of_legal_age
@@ -25,6 +19,9 @@ import logging
 from fastapi import HTTPException
 from luhncheck import is_luhn
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+
 
 def validate_purchase_request(
     date_of_birth: datetime.datetime,
@@ -38,7 +35,7 @@ def validate_purchase_request(
     is valid, and if the credit card expiration date is valid. It returns a string of validation
     errors.
     """
-    logging.info("Initializing the purchase request validation process")
+    logger.info("Initializing the purchase request validation process")
     try:
         # Prep Step: Initialize validation errors list
         validation_errors: str = ""
@@ -54,41 +51,41 @@ def validate_purchase_request(
         maximum_cvv_length: int = int(os.getenv("MAXIMUM_CVV_LENGTH", "4"))
         legal_age: int = int(os.getenv("LEGAL_AGE", "18"))
     except Exception:
-        logging.error("Failed to load environment variables")
+        logger.error("Failed to load environment variables")
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to initialize the request validation process",
         )
 
     try:
-        logging.info("Validating the customer is of legal age")
+        logger.info("Validating the customer is of legal age")
         # Step 1: Validate that the requestor is of legal age
         validation_errors += is_customer_of_legal_age(date_of_birth, legal_age)
 
-        logging.info("Validating the credit card number length")
+        logger.info("Validating the credit card number length")
         # Step 2: Validate the credit card number length
         validation_errors += is_credit_card_number_length_valid(
             credit_card_number, minimum_card_number_length, maximum_card_number_length
         )
 
-        logging.info("Validating the credit card number")
+        logger.info("Validating the credit card number")
         # Step 3: Validate the credit card number
         validation_errors += is_credit_card_number_valid(credit_card_number)
 
-        logging.info("Validating the credit card cvv")
+        logger.info("Validating the credit card cvv")
         # Step 4: Validate the credit card cvv
         validation_errors += is_cvv_valid(
             credit_card_cvv, minimum_cvv_length, maximum_cvv_length
         )
 
-        logging.info("Validating the credit card expiration date")
+        logger.info("Validating the credit card expiration date")
         # Step 5: Validate the credit card expiration date
         validation_errors += is_credit_card_expired(credit_card_expiration_date)
 
         # Return the validation errors
         return validation_errors
     except Exception:
-        logging.error("Failed to validate the purchase request")
+        logger.error("Failed to validate the purchase request")
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to validate the purchase request",

@@ -2,18 +2,6 @@
 This module contains the functions for generating invoices. It includes a function for generating a
 QR code, a function for rendering an HTML invoice, and a function for generating a PDF invoice.
 
-Dependencies:
-    - jinja2.Environment
-    - jinja2.FileSystemLoader
-    - jinja2.Template
-    - os
-    - weasyprint.HTML
-    - datetime
-    - qrcode
-    - base64
-    - io
-    - logging
-
 Methods:
     generate_qr_code
     render_html_invoice
@@ -31,6 +19,15 @@ from weasyprint import HTML  # type: ignore
 import qrcode
 from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+
+logging.getLogger("fontTools").setLevel(logging.ERROR)
+logging.getLogger("fontTools.subset").setLevel(logging.ERROR)
+logging.getLogger("fontTools.ttLib.ttFont").setLevel(logging.ERROR)
+logging.getLogger("weasyprint").setLevel(logging.ERROR)
+logging.getLogger("PIL").setLevel(logging.ERROR)
+
 
 def generate_qr_code(billing_account_number: str) -> str:
     """
@@ -39,7 +36,7 @@ def generate_qr_code(billing_account_number: str) -> str:
     qr code.
     """
     try:
-        logging.info("Generating a QR code for the billing account number")
+        logger.info("Generating a QR code for the billing account number")
         url: str = f"https://telus.com/user/{billing_account_number}"
         qr: qrcode.QRCode = qrcode.QRCode(
             version=1,
@@ -58,7 +55,7 @@ def generate_qr_code(billing_account_number: str) -> str:
 
         return qr_code_base64
     except Exception:
-        logging.error("Failed to generate the QR code")
+        logger.error("Failed to generate the QR code")
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to generate the QR code",
@@ -73,7 +70,7 @@ def render_html_invoice(
     returns the rendered HTML as a string.
     """
     try:
-        logging.info("Rendering the HTML invoice")
+        logger.info("Rendering the HTML invoice")
         template_env: Environment = Environment(loader=FileSystemLoader("templates"))
         invoice_template: Template = template_env.get_template("invoice_template.html")
         qr_code: str = generate_qr_code(purchase_response.billing_account_number)
@@ -91,7 +88,7 @@ def render_html_invoice(
 
         return html_invoice
     except Exception:
-        logging.error("Failed to render the HTML invoice")
+        logger.error("Failed to render the HTML invoice")
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to render the HTML invoice",
@@ -113,7 +110,7 @@ def generate_pdf_invoice(
 
         HTML(string=html_content).write_pdf(target=output_path)
     except Exception:
-        logging.error("Failed to generate the PDF invoice")
+        logger.error("Failed to generate the PDF invoice")
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to generate the PDF invoice",

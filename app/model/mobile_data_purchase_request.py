@@ -3,16 +3,6 @@ This module contains the MobileDataPurchaseRequest class. This class represents 
 purchase request. It contains both the attributes of the request and methods for parsing the request
 from a binary file and a binary CSV file.
 
-Dependencies:
-    - datetime
-    - csv
-    - base64
-    - typing.Union
-    - typing.Type
-    - fastapi.Request
-    - pydantic.BaseModel
-    - pydantic.field_validator
-    
 Methods:
     - parse_date_of_birth
     - parse_credit_card_expiration
