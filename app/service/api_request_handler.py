@@ -5,26 +5,25 @@ file, process the request, and return a JSON response with the status and BAN of
 
 Methods:
     - handle_single_mobile_data_purchase_request
-    - handle_bulk_mobile_upload_purchase_request
 """
 
 import logging
 from fastapi.responses import JSONResponse
 from fastapi import Request
-from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
-from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
-from app.interface.mobile_data_purchase_processor_interface import (
-    process_mobile_data_purchase_request,
-)
+from app.model.customer_information import CustomerInformation
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from app.utils import parse_csv_rows_into_lists
+from app.interface.validation_interface import validate_customer_information
+from app.service.db_service import DataBaseService
+from app.service.invoice_generation_service import generate_pdf_invoice
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 
 async def handle_single_mobile_data_purchase_request(
-    binary_purchase_request: Request, db_session: Session
+    api_request: Request, db_session: Session
 ) -> JSONResponse:
     """
     This function handles a single mobile data purchase request. It builds a request from a
@@ -32,75 +31,50 @@ async def handle_single_mobile_data_purchase_request(
     request.
     """
     try:
-        logger.info("Building a mobile data purchase request from a binary file")
 
-        purchase_request: MobileDataPurchaseRequest = (
-            await MobileDataPurchaseRequest.build_request_from_binary_file(
-                binary_purchase_request
+        logger.info("Splitting bulk customer information into lists")
+
+        lists_of_customer_information: list[list[str]] = (
+            await parse_csv_rows_into_lists(await api_request.body())
+        )
+
+        responses: dict = {}
+
+        for single_customer_information_list in lists_of_customer_information:
+            logger.info("Building customer information object")
+
+            customer_information: CustomerInformation = (
+                await CustomerInformation.construct_customer_information_object_from_list(
+                    single_customer_information_list
+                )
             )
-        )
 
-        logger.info("Processing the mobile data purchase request")
+            logger.info("Validating customer information")
+            customer_information.validation_errors += validate_customer_information(
+                customer_information.date_of_birth,
+                customer_information.credit_card_number,
+                customer_information.credit_card_expiration_date,
+                customer_information.credit_card_cvv,
+            )
 
-        purchase_response: MobileDataPurchaseResponse = (
-            await process_mobile_data_purchase_request(purchase_request, db_session)
-        )
+            customer_information.update_status()
 
-        logger.info("Successfully processed the mobile data purchase request")
+            logger.info("Recording transaction in the database")
+            DataBaseService.record_transaction(customer_information, db_session)
 
-        return JSONResponse(
-            content={
-                f"status for BAN {purchase_response.billing_account_number}": purchase_response.status
-            }
-        )
-    except Exception:
+            logger.info("Generating PDF invoice")
+            generate_pdf_invoice(customer_information)
+
+            responses[customer_information.billing_account_number] = (
+                customer_information.status
+            )
+
+        return JSONResponse(content=responses)
+
+    except Exception as e:
+        print(e)
         logger.error("Failed to process the mobile data purchase request")
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to process the mobile data purchase request",
-        )
-
-
-async def handle_bulk_mobile_upload_purchase_request(
-    csv_path: str, db_session: Session
-) -> JSONResponse:
-    """
-    This function handles a bulk mobile data purchase request. It builds a list of requests from a
-    binary csv file, processes the requests, and returns a JSON response with the status and BAN
-    of each request.
-    """
-    try:
-        logger.info(
-            "Building a list of mobile data purchase requests from a binary CSV file"
-        )
-
-        responses: list[MobileDataPurchaseResponse] = []
-
-        logger.info("Processing the mobile data purchase requests")
-
-        for row in MobileDataPurchaseRequest.build_request_list_from_binary_csv(  # type: ignore
-            csv_path
-        ):
-            responses.append(
-                await process_mobile_data_purchase_request(row, db_session)
-            )
-
-            logger.info(
-                "Successfully processed a mobile data purchase request, BAN: %s",
-                row.billing_account_number,
-            )
-
-        logger.info("Successfully processed the bulk mobile data purchase requests")
-
-        return JSONResponse(
-            content={
-                f"status for BAN {response.billing_account_number}": response.status
-                for response in responses
-            }
-        )
-    except Exception:
-        logger.error("Failed to process the bulk mobile data purchase requests")
-        raise HTTPException(
-            status_code=500,
-            detail="Internal Server Error: Failed to process the bulk mobile data purchase requests",
         )

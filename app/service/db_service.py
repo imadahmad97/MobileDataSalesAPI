@@ -4,9 +4,10 @@ and tables, closing the database connection, and providing a database session fo
 the database.
 """
 
-from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
+from app.model.customer_information import CustomerInformation
 from app.model.mobile_data_purchase_transaction import MobileDataPurchaseTransaction
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import SQLModel, create_engine
+from sqlalchemy.orm.session import Session
 from pathlib import Path
 import logging
 
@@ -53,9 +54,7 @@ class DataBaseService:
 
     @staticmethod
     def record_transaction(
-        purchase_request: MobileDataPurchaseRequest,
-        status: str,
-        validation_errors: str,
+        customer_information: CustomerInformation,
         session: Session,
     ) -> MobileDataPurchaseTransaction:
         """
@@ -64,8 +63,8 @@ class DataBaseService:
         processed.
         """
         transaction = (
-            MobileDataPurchaseTransaction.build_transaction_from_request_and_response(
-                purchase_request, status, validation_errors
+            MobileDataPurchaseTransaction.build_transaction_from_customer_information(
+                customer_information
             )
         )
         logger.info("Committing the transaction to the database")

@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field
 import datetime
-from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
+from app.model.customer_information import CustomerInformation
 
 
 class MobileDataPurchaseTransaction(SQLModel, table=True):
@@ -15,23 +15,21 @@ class MobileDataPurchaseTransaction(SQLModel, table=True):
     validation_errors: str = Field()
 
     @classmethod
-    def build_transaction_from_request_and_response(
+    def build_transaction_from_customer_information(
         cls,
-        request: MobileDataPurchaseRequest,
-        status: str,
-        validation_errors: str,
+        customer_information: CustomerInformation,
     ) -> "MobileDataPurchaseTransaction":
         """
-        This method builds a transaction object from a purchase request and response.
+        This method builds a transaction object from a purchase customer_information and response.
         """
         return cls(
-            name=request.name,
-            date_of_birth=request.date_of_birth,
-            credit_card_number=request.credit_card_number,
-            credit_card_expiration_date=request.credit_card_expiration_date,
-            credit_card_cvv=request.credit_card_cvv,
-            billing_account_number=request.billing_account_number,
-            requested_mobile_data=request.requested_mobile_data,
-            status=status,
-            validation_errors=validation_errors,
+            name=customer_information.name,
+            date_of_birth=customer_information.date_of_birth,
+            credit_card_number=customer_information.credit_card_number,
+            credit_card_expiration_date=customer_information.credit_card_expiration_date,
+            credit_card_cvv=customer_information.credit_card_cvv,
+            billing_account_number=customer_information.billing_account_number,
+            customer_informationed_mobile_data=customer_information.requested_mobile_data,
+            status=customer_information.status,
+            validation_errors=customer_information.validation_errors,
         )

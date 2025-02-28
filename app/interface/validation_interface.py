@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 
-def validate_purchase_request(
+def validate_customer_information(
     date_of_birth: datetime.datetime,
     credit_card_number: str,
     credit_card_expiration_date: datetime.datetime,

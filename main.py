@@ -16,7 +16,6 @@ from fastapi.responses import JSONResponse
 from app.service.db_service import DataBaseService
 from app.service.api_request_handler import (
     handle_single_mobile_data_purchase_request,
-    handle_bulk_mobile_upload_purchase_request,
 )
 import logging
 from sqlalchemy.orm import Session

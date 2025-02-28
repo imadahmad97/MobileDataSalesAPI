@@ -11,7 +11,7 @@ Methods:
 import logging
 from fastapi import HTTPException
 from app.model.mobile_data_purchase_response import MobileDataPurchaseResponse
-from app.model.mobile_data_purchase_request import MobileDataPurchaseRequest
+from app.model.customer_information import MobileDataPurchaseRequest
 from app.interface.validation_interface import validate_purchase_request
 from app.service.invoice_generation_service import generate_pdf_invoice
 from app.service.db_service import DataBaseService
