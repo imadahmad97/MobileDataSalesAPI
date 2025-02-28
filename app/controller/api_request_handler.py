@@ -14,7 +14,7 @@ from app.model.customer_information import CustomerInformation
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.utils import parse_csv_rows_into_lists
-from app.interface.validation_interface import validate_customer_information
+from app.service.validation_service import validate_customer_information
 from app.service.db_service import DataBaseService
 from app.service.invoice_generation_service import generate_pdf_invoice
 
@@ -65,9 +65,9 @@ async def handle_single_mobile_data_purchase_request(
             logger.info("Generating PDF invoice")
             generate_pdf_invoice(customer_information)
 
-            responses[customer_information.billing_account_number] = (
-                customer_information.status
-            )
+            responses[
+                f"Status for BAN {customer_information.billing_account_number}"
+            ] = customer_information.status
 
         return JSONResponse(content=responses)
 

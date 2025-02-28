@@ -14,7 +14,7 @@ Routes:
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
 from app.service.db_service import DataBaseService
-from app.service.api_request_handler import (
+from app.controller.api_request_handler import (
     handle_single_mobile_data_purchase_request,
 )
 import logging
