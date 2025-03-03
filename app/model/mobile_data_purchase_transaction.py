@@ -29,7 +29,7 @@ class MobileDataPurchaseTransaction(SQLModel, table=True):
             credit_card_expiration_date=customer_information.credit_card_expiration_date,
             credit_card_cvv=customer_information.credit_card_cvv,
             billing_account_number=customer_information.billing_account_number,
-            customer_informationed_mobile_data=customer_information.requested_mobile_data,
+            requested_mobile_data=customer_information.requested_mobile_data,
             status=customer_information.status,
             validation_errors=customer_information.validation_errors,
         )

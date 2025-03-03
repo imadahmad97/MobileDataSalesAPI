@@ -8,15 +8,14 @@ Methods:
 """
 
 import logging
-from fastapi.responses import JSONResponse
-from fastapi import Request
-from app.model.customer_information import CustomerInformation
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from fastapi import Request, HTTPException
+from fastapi.responses import JSONResponse
 from app.utils import parse_csv_rows_into_lists
-from app.service.validation_service import validate_customer_information
 from app.service.db_service import DataBaseService
+from app.model.customer_information import CustomerInformation
 from app.service.invoice_generation_service import generate_pdf_invoice
+from app.service.validation_service import validate_customer_information
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -30,6 +29,7 @@ async def handle_single_mobile_data_purchase_request(
     binary file, processes the request, and returns a JSON response with the status and BAN of the
     request.
     """
+
     try:
 
         logger.info("Splitting bulk customer information into lists")

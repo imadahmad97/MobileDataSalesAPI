@@ -5,10 +5,6 @@ Routes:
     /mobile-data-purchase-request
         parameters: binary_purchase_request: Request
         methods: POST
-    
-    /bulk-mobile-data-purchase-request
-        parameters: csv_path: str
-        methods: POST
 """
 
 from fastapi import FastAPI, Request, Depends
@@ -21,13 +17,17 @@ import logging
 from sqlalchemy.orm import Session
 from typing import Annotated
 from contextlib import asynccontextmanager
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+path_to_db_file = os.getenv("PATH_TO_DB_FILE", "sqlite:///./transactions.db")
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-db_service = DataBaseService()
-DB_SESSION = Annotated[Session, Depends(db_service.get_db_session)]
+db_service = DataBaseService(path_to_db_file)
+db_session = Annotated[Session, Depends(db_service.get_db_session)]
 
 
 @asynccontextmanager
@@ -36,6 +36,7 @@ async def lifespan(app: FastAPI):
     This context manager initializes the database and tables when the FastAPI application is started
     and closes the database connection when the FastAPI application is stopped.
     """
+    logger.info("Initializing the database and tables")
     db_service.create_db_and_tables()
     yield
     db_service.close_db_connection()
@@ -46,8 +47,8 @@ app: FastAPI = FastAPI(lifespan=lifespan)
 
 @app.post("/mobile-data-purchase-request")
 async def mobile_data_purchase_request_route(
-    binary_purchase_request: Request,  # CHANGE TO PURCHASE REQUEST
-    DB_SESSION: Annotated[Session, Depends(db_service.get_db_session)],
+    purchase_request: Request,
+    db_session: Annotated[Session, Depends(db_service.get_db_session)],
 ) -> JSONResponse:
     """
     This route handles a single mobile data purchase request. It takes a binary file as input and
@@ -58,31 +59,9 @@ async def mobile_data_purchase_request_route(
     logger.info("Received a mobile data purchase request")
 
     response: JSONResponse = await handle_single_mobile_data_purchase_request(
-        binary_purchase_request, DB_SESSION
+        purchase_request, db_session
     )
 
     logger.info("Successfully completed the mobile data purchase request")
-
-    return response
-
-
-@app.post("/bulk-mobile-data-purchase-request")
-async def bulk_mobile_data_purchase_request_route(
-    csv_path: str,
-    DB_SESSION: Annotated[Session, Depends(db_service.get_db_session)],
-) -> JSONResponse:
-    """
-    This route handles a bulk mobile data purchase request. It takes a CSV file path as input and
-    feeds it to the handle_bulk_mobile_upload_purchase_request function. The function processes the
-    route then returns the JSON response from the handler function.
-    """
-
-    logger.info("Received a bulk mobile data purchase request")
-
-    response: JSONResponse = await handle_bulk_mobile_upload_purchase_request(
-        csv_path, DB_SESSION
-    )
-
-    logger.info("Successfully completed the bulk mobile data purchase request")
 
     return response

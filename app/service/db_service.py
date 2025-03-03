@@ -8,25 +8,18 @@ from app.model.customer_information import CustomerInformation
 from app.model.mobile_data_purchase_transaction import MobileDataPurchaseTransaction
 from sqlmodel import SQLModel, create_engine
 from sqlalchemy.orm.session import Session
-from pathlib import Path
 import logging
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
 
 class DataBaseService:
-    sqlite_file_name = (
-        BASE_DIR / "appdata" / "database" / "mobile_data_sales_api.db"
-    )  # CHANGE: MOVE TO INIT
-    sqlite_url = f"sqlite:///{sqlite_file_name}"
 
-    def __init__(self):
-        logger.info("Initializing the database service")
+    def __init__(self, path_to_db_file: str):
+        logger.info("Connecting to the database")
         self.engine = create_engine(
-            self.__class__.sqlite_url, connect_args={"check_same_thread": False}
+            path_to_db_file, connect_args={"check_same_thread": False}
         )
 
     def create_db_and_tables(self):
