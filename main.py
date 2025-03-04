@@ -11,7 +11,7 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
 from app.service.db_service import DataBaseService
 from app.controller.api_request_handler import (
-    handle_single_mobile_data_purchase_request,
+    handle_mobile_data_purchase_request,
 )
 import logging
 from sqlalchemy.orm import Session
@@ -58,7 +58,7 @@ async def mobile_data_purchase_request_route(
 
     logger.info("Received a mobile data purchase request")
 
-    response: JSONResponse = await handle_single_mobile_data_purchase_request(
+    response: JSONResponse = await handle_mobile_data_purchase_request(
         purchase_request, db_session
     )
 

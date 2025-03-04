@@ -7,11 +7,12 @@ Methods:
     - handle_single_mobile_data_purchase_request
 """
 
+import io
+import csv
 import logging
 from sqlalchemy.orm import Session
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
-from app.utils import parse_csv_rows_into_lists
 from app.service.db_service import DataBaseService
 from app.model.customer_information import CustomerInformation
 from app.service.invoice_generation_service import generate_pdf_invoice
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 
-async def handle_single_mobile_data_purchase_request(
+async def handle_mobile_data_purchase_request(
     api_request: Request, db_session: Session
 ) -> JSONResponse:
     """
@@ -78,3 +79,14 @@ async def handle_single_mobile_data_purchase_request(
             status_code=500,
             detail="Internal Server Error: Failed to process the mobile data purchase request",
         )
+
+
+async def parse_csv_rows_into_lists(contents: bytes) -> list[list[str]]:
+    """
+    Parses the contents of a csv file into a list of rows, where each row is a list of strings.
+    """
+    csv_text: io.StringIO = io.StringIO(contents.decode("utf-8"))
+    reader: csv.reader = csv.reader(csv_text)
+    parsed_rows: list[list[str]] = list(reader)
+
+    return parsed_rows
