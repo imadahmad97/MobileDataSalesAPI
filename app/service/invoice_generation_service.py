@@ -1,11 +1,6 @@
 """
 This module contains the functions for generating invoices. It includes a function for generating a
 QR code, a function for rendering an HTML invoice, and a function for generating a PDF invoice.
-
-Methods:
-    generate_qr_code
-    render_html_invoice
-    generate_pdf_invoice
 """
 
 import os
@@ -71,9 +66,11 @@ def render_html_invoice(
     """
     try:
         logger.info("Rendering the HTML invoice")
+
         template_env: Environment = Environment(loader=FileSystemLoader("templates"))
         invoice_template: Template = template_env.get_template("invoice_template.html")
         qr_code: str = generate_qr_code(customer_information.billing_account_number)
+
         data: dict = {
             "name": customer_information.name,
             "credit_card_number": customer_information.credit_card_number[:-8],
@@ -84,6 +81,7 @@ def render_html_invoice(
             "date": datetime.datetime.now().strftime("%Y-%m-%d"),
             "qr_code": qr_code,
         }
+
         html_invoice: str = invoice_template.render(data)
 
         return html_invoice

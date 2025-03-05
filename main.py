@@ -51,9 +51,9 @@ async def mobile_data_purchase_request_route(
     db_session: Annotated[Session, Depends(db_service.get_db_session)],
 ) -> JSONResponse:
     """
-    This route handles a single mobile data purchase request. It takes a binary file as input and
-    feeds it to the handle_single_mobile_data_purchase_request function. The function processes the
-    route then returns the JSON response from the handler function.
+    This route handles a mobile data purchase request. It takes a purchase request as input and
+    feeds it to the handle_mobile_data_purchase_request function. The function processes the route
+    and returns a JSON response.
     """
 
     logger.info("Received a mobile data purchase request")

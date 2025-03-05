@@ -2,9 +2,6 @@
 This module contains functions that handle API requests. The functions in this module are called by
 the FastAPI routes defined in main.py. The functions in this module build a request from a binary
 file, process the request, and return a JSON response with the status and BAN of the request.
-
-Methods:
-    - handle_single_mobile_data_purchase_request
 """
 
 import io
@@ -26,27 +23,28 @@ async def handle_mobile_data_purchase_request(
     api_request: Request, db_session: Session
 ) -> JSONResponse:
     """
-    This function handles a single mobile data purchase request. It builds a request from a
-    binary file, processes the request, and returns a JSON response with the status and BAN of the
-    request.
+    This function handles a mobile data purchase request. It takes a request as input, processes the
+    request into multiple sets of customer information, validates the customer information, records
+    the transaction in the database, generates a PDF invoice, and returns a JSON response with the
+    status and BAN of each request.
     """
 
     try:
 
         logger.info("Splitting bulk customer information into lists")
 
-        lists_of_customer_information: list[list[str]] = (
-            await parse_csv_rows_into_lists(await api_request.body())
+        customer_data_rows: list[list[str]] = await parse_csv_rows_into_lists(
+            await api_request.body()
         )
 
         responses: dict = {}
 
-        for single_customer_information_list in lists_of_customer_information:
+        for customer_data_row in customer_data_rows:
             logger.info("Building customer information object")
 
             customer_information: CustomerInformation = (
                 await CustomerInformation.construct_customer_information_object_from_list(
-                    single_customer_information_list
+                    customer_data_row
                 )
             )
 
@@ -72,8 +70,7 @@ async def handle_mobile_data_purchase_request(
 
         return JSONResponse(content=responses)
 
-    except Exception as e:
-        print(e)
+    except Exception:
         logger.error("Failed to process the mobile data purchase request")
         raise HTTPException(
             status_code=500,

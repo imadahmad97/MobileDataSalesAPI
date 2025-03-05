@@ -20,8 +20,9 @@ from pydantic import BaseModel, field_validator
 
 class CustomerInformation(BaseModel):
     """
-    This class represents a mobile data purchase request. It contains both the attributes of the
-    request and methods for parsing the request from a binary file and a binary CSV file.
+    This class represents a customer's information for a mobile data purchase request. It contains
+    both the attributes of the request and methods for validating, constructing, and updating the
+    request.
     """
 
     name: str
@@ -62,6 +63,9 @@ class CustomerInformation(BaseModel):
     async def construct_customer_information_object_from_list(
         cls, customer_info: list[str]
     ) -> "CustomerInformation":
+        """
+        This method constructs a customer information object from a list of customer information.
+        """
         return cls(
             name=customer_info[0],
             date_of_birth=customer_info[1],  # type: ignore
