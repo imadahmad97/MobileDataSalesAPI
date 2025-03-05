@@ -1,7 +1,8 @@
 """
-This module contains functions that handle API requests. The functions in this module are called by
-the FastAPI routes defined in main.py. The functions in this module build a request from a binary
-file, process the request, and return a JSON response with the status and BAN of the request.
+This module contains the function that handles a mobile data purchase request. It takes a request as
+input, processes the request into multiple sets of customer information, validates the customer
+information, records the transaction in the database, generates a PDF invoice, and returns a JSON
+response with the status and BAN of each request.
 """
 
 import io

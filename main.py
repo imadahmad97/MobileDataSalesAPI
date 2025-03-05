@@ -3,7 +3,14 @@ This module contains the routes for the mobile data sales API.
     
 Routes:
     /mobile-data-purchase-request
-        parameters: binary_purchase_request: Request
+        purchase_request: Request
+            The purchase request to be processed.
+        db_session: Annotated[Session, Depends(db_service.get_db_session)]
+            The database session to be used for the request.
+        
+        Returns:
+            JSONResponse
+                The response to the purchase request.
         methods: POST
 """
 

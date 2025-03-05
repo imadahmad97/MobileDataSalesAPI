@@ -1,16 +1,7 @@
 """
-This module contains the MobileDataPurchaseRequest class. This class represents a mobile data
-purchase request. It contains both the attributes of the request and methods for parsing the request
-from a binary file and a binary CSV file.
-
-Methods:
-    - parse_date_of_birth
-    - parse_credit_card_expiration
-    - build_request_from_binary_file
-    - build_request_list_from_binary_csv
-    - _parse_binary_file
-    - _parse_binary_csv
-    - _decode_base
+This module contains the CustomerInformation class, which represents a customer's information for a
+mobile data purchase request. It contains both the attributes of the request and methods for
+validating, constructing, and updating the request.
 """
 
 import datetime

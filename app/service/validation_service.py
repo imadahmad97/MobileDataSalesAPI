@@ -3,14 +3,6 @@ This module contains the functions that validate a purchase request. It checks i
 of legal age, if the credit card number is valid, if the credit card number length is valid, if the
 credit card cvv is valid, and if the credit card expiration date is valid. It returns a string of
 validation errors.
-
-Methods:
-    - validate_purchase_request
-    - is_customer_of_legal_age
-    - is_credit_card_number_length_valid
-    - is_credit_card_number_valid
-    - is_cvv_valid
-    - is_credit_card_expired
 """
 
 import os
