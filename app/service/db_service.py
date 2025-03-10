@@ -4,7 +4,7 @@ and tables, closing the database connection, and providing a database session fo
 the database.
 """
 
-from app.model.customer_information import CustomerInformation
+from app.model.mobile_data_sell_order import CustomerInformation
 from app.model.mobile_data_purchase_transaction import MobileDataPurchaseTransaction
 from sqlmodel import SQLModel, create_engine
 from sqlalchemy.orm.session import Session

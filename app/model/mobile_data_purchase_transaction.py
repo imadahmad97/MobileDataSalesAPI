@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field
 import datetime
-from app.model.customer_information import CustomerInformation
+from app.model.mobile_data_sell_order import CustomerInformation
 
 
 class MobileDataPurchaseTransaction(SQLModel, table=True):

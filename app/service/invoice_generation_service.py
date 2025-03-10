@@ -12,7 +12,7 @@ from fastapi import HTTPException
 from jinja2 import Environment, FileSystemLoader, Template
 from weasyprint import HTML  # type: ignore
 import qrcode  # type: ignore
-from app.model.customer_information import CustomerInformation
+from app.model.mobile_data_sell_order import CustomerInformation
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)

@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from app.service.db_service import DataBaseService
-from app.model.customer_information import CustomerInformation
+from app.model.mobile_data_sell_order import MobileDataSellOrder
 from app.service.invoice_generation_service import generate_pdf_invoice
 from app.service.validation_service import validate_customer_information
 
@@ -34,9 +34,11 @@ async def handle_mobile_data_purchase_request(
 
         logger.info("Splitting bulk customer information into lists")
 
-        customer_data_rows: list[list[str]] = await parse_csv_rows_into_lists(
+        mobile_data_sell_orders: list[MobileDataSellOrder] = await parse_csv_content(
             await api_request.body()
         )
+
+        validate_sell_orders(mobile_data_sell_orders)
 
         responses: dict = {}
 
@@ -88,3 +90,26 @@ async def parse_csv_rows_into_lists(contents: bytes) -> list[list[str]]:
     parsed_rows: list[list[str]] = list(reader)
 
     return parsed_rows
+
+
+async def parse_csv_content(content: bytes) -> list[MobileDataSellOrder]:
+
+    csv_text: io.StringIO = io.StringIO(content.decode("utf-8"))
+    reader: csv.reader = csv.reader(csv_text)
+    parsed_rows: list[list[str]] = list(reader)
+
+    mobile_data_sell_orders: list[MobileDataSellOrder] = []
+
+    for row in parsed_rows:
+        mobile_data_sell_order = MobileDataSellOrder(
+            name=row[0],
+            date_of_birth=row[1],
+            credit_card_number=row[2],
+            credit_card_expiration_date=row[3],
+            credit_card_cvv=row[4],
+            billing_account_number=row[5],
+            requested_mobile_data=row[6],
+            status="",
+            validation_errors="",
+        )
+        mobile_data_sell_orders.append(mobile_data_sell_order)

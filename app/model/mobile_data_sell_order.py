@@ -9,7 +9,7 @@ from typing import Union
 from pydantic import BaseModel, field_validator
 
 
-class CustomerInformation(BaseModel):
+class MobileDataSellOrder(BaseModel):
     """
     This class represents a customer's information for a mobile data purchase request. It contains
     both the attributes of the request and methods for validating, constructing, and updating the
