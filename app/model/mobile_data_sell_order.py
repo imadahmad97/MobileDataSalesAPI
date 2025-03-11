@@ -24,7 +24,7 @@ class MobileDataSellOrder(BaseModel):
     billing_account_number: str
     requested_mobile_data: str
     status: str
-    validation_errors: str
+    validation_errors: list[str]
 
     @field_validator("date_of_birth", mode="before")
     @classmethod
@@ -53,7 +53,7 @@ class MobileDataSellOrder(BaseModel):
     @classmethod
     async def construct_customer_information_object_from_list(
         cls, customer_info: list[str]
-    ) -> "CustomerInformation":
+    ) -> "MobileDataSellOrder":
         """
         This method constructs a customer information object from a list of customer information.
         """
@@ -65,16 +65,6 @@ class MobileDataSellOrder(BaseModel):
             credit_card_cvv=customer_info[4],
             billing_account_number=customer_info[5],
             requested_mobile_data=customer_info[6],
-            status="",
-            validation_errors="",
+            status="Approved",
+            validation_errors=[],
         )
-
-    def update_status(self):
-        """
-        This method updates the status of the mobile data purchase request based on the presence of
-        validation errors.
-        """
-        if self.validation_errors:
-            self.status = "Rejected"
-        else:
-            self.status = "Approved"

@@ -13,8 +13,8 @@ from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from app.service.db_service import DataBaseService
 from app.model.mobile_data_sell_order import MobileDataSellOrder
-from app.service.invoice_generation_service import generate_pdf_invoice
-from app.service.validation_service import validate_customer_information
+from app.service.invoice_generation_service import generate_pdf_invoices
+from app.service.validation_service import validate_mobile_data_sell_orders
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -30,66 +30,24 @@ async def handle_mobile_data_purchase_request(
     status and BAN of each request.
     """
 
-    try:
+    # Prep Step: Parse the CSV content into a list of MobileDataSellOrder objects
+    mobile_data_sell_orders: list[MobileDataSellOrder] = await parse_csv_content(
+        await api_request.body()
+    )
 
-        logger.info("Splitting bulk customer information into lists")
+    # Step 1: Validate the mobile data sell orders
+    validate_mobile_data_sell_orders(mobile_data_sell_orders)
 
-        mobile_data_sell_orders: list[MobileDataSellOrder] = await parse_csv_content(
-            await api_request.body()
-        )
+    # Step 2: Record the transaction in the database
+    DataBaseService.record_transactions(mobile_data_sell_orders, db_session)
 
-        validate_sell_orders(mobile_data_sell_orders)
+    # Step 3: Generate PDF invoices
+    generate_pdf_invoices(mobile_data_sell_orders)
 
-        responses: dict = {}
+    # Step 4: Get the responses
+    responses: dict = await get_responses(mobile_data_sell_orders)
 
-        for customer_data_row in customer_data_rows:
-            logger.info("Building customer information object")
-
-            customer_information: CustomerInformation = (
-                await CustomerInformation.construct_customer_information_object_from_list(
-                    customer_data_row
-                )
-            )
-
-            logger.info("Validating customer information")
-            customer_information.validation_errors += validate_customer_information(
-                customer_information.date_of_birth,
-                customer_information.credit_card_number,
-                customer_information.credit_card_expiration_date,
-                customer_information.credit_card_cvv,
-            )
-
-            customer_information.update_status()
-
-            logger.info("Recording transaction in the database")
-            DataBaseService.record_transaction(customer_information, db_session)
-
-            logger.info("Generating PDF invoice")
-            generate_pdf_invoice(customer_information)
-
-            responses[
-                f"Status for BAN {customer_information.billing_account_number}"
-            ] = customer_information.status
-
-        return JSONResponse(content=responses)
-
-    except Exception:
-        logger.error("Failed to process the mobile data purchase request")
-        raise HTTPException(
-            status_code=500,
-            detail="Internal Server Error: Failed to process the mobile data purchase request",
-        )
-
-
-async def parse_csv_rows_into_lists(contents: bytes) -> list[list[str]]:
-    """
-    Parses the contents of a csv file into a list of rows, where each row is a list of strings.
-    """
-    csv_text: io.StringIO = io.StringIO(contents.decode("utf-8"))
-    reader: csv.reader = csv.reader(csv_text)
-    parsed_rows: list[list[str]] = list(reader)
-
-    return parsed_rows
+    return JSONResponse(content=responses)
 
 
 async def parse_csv_content(content: bytes) -> list[MobileDataSellOrder]:
@@ -103,13 +61,29 @@ async def parse_csv_content(content: bytes) -> list[MobileDataSellOrder]:
     for row in parsed_rows:
         mobile_data_sell_order = MobileDataSellOrder(
             name=row[0],
-            date_of_birth=row[1],
+            date_of_birth=row[1],  # type: ignore
             credit_card_number=row[2],
-            credit_card_expiration_date=row[3],
+            credit_card_expiration_date=row[3],  # type: ignore
             credit_card_cvv=row[4],
             billing_account_number=row[5],
             requested_mobile_data=row[6],
-            status="",
-            validation_errors="",
+            status="Approved",
+            validation_errors=[],
         )
         mobile_data_sell_orders.append(mobile_data_sell_order)
+
+    return mobile_data_sell_orders
+
+
+async def get_responses(mobile_data_sell_orders: list[MobileDataSellOrder]) -> dict:
+    """
+    This function returns a dictionary containing the status and BAN of each mobile data sell order.
+    """
+    responses: dict = {}
+
+    for mobile_data_sell_order in mobile_data_sell_orders:
+        responses[f"Status for BAN {mobile_data_sell_order.billing_account_number}"] = (
+            mobile_data_sell_order.status
+        )
+
+    return responses

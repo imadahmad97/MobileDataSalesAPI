@@ -12,7 +12,7 @@ from fastapi import HTTPException
 from jinja2 import Environment, FileSystemLoader, Template
 from weasyprint import HTML  # type: ignore
 import qrcode  # type: ignore
-from app.model.mobile_data_sell_order import CustomerInformation
+from app.model.mobile_data_sell_order import MobileDataSellOrder
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -58,7 +58,7 @@ def generate_qr_code(billing_account_number: str) -> str:
 
 
 def render_html_invoice(
-    customer_information: "CustomerInformation",
+    mobile_data_sell_order: "MobileDataSellOrder",
 ) -> str:
     """
     This function renders an HTML invoice containing the proided data and generated QR code. It
@@ -69,15 +69,15 @@ def render_html_invoice(
 
         template_env: Environment = Environment(loader=FileSystemLoader("templates"))
         invoice_template: Template = template_env.get_template("invoice_template.html")
-        qr_code: str = generate_qr_code(customer_information.billing_account_number)
+        qr_code: str = generate_qr_code(mobile_data_sell_order.billing_account_number)
 
         data: dict = {
-            "name": customer_information.name,
-            "credit_card_number": customer_information.credit_card_number[:-8],
-            "billing_account_number": customer_information.billing_account_number,
-            "requested_mobile_data": customer_information.requested_mobile_data,
-            "status": customer_information.status,
-            "validation_errors": customer_information.validation_errors,
+            "name": mobile_data_sell_order.name,
+            "credit_card_number": mobile_data_sell_order.credit_card_number[:-8],
+            "billing_account_number": mobile_data_sell_order.billing_account_number,
+            "requested_mobile_data": mobile_data_sell_order.requested_mobile_data,
+            "status": mobile_data_sell_order.status,
+            "validation_errors": mobile_data_sell_order.validation_errors,
             "date": datetime.datetime.now().strftime("%Y-%m-%d"),
             "qr_code": qr_code,
         }
@@ -94,7 +94,7 @@ def render_html_invoice(
 
 
 def generate_pdf_invoice(
-    customer_information: "CustomerInformation",
+    mobile_data_sales_order: "MobileDataSellOrder",
 ) -> None:
     """
     This function generates a PDF invoice for a given mobile data purchase response. It renders the
@@ -102,8 +102,8 @@ def generate_pdf_invoice(
     directory.
     """
     try:
-        html_content: str = render_html_invoice(customer_information)
-        filename: str = f"invoice_{customer_information.billing_account_number}.pdf"
+        html_content: str = render_html_invoice(mobile_data_sales_order)
+        filename: str = f"invoice_{mobile_data_sales_order.billing_account_number}.pdf"
         output_path: str = os.path.join("appdata/pdfs", filename)
 
         HTML(string=html_content).write_pdf(target=output_path)
@@ -113,3 +113,15 @@ def generate_pdf_invoice(
             status_code=500,
             detail="Internal Server Error: Failed to generate the PDF invoice",
         )
+
+
+def generate_pdf_invoices(
+    mobile_data_sales_orders: list["MobileDataSellOrder"],
+) -> None:
+    """
+    This function generates PDF invoices for a list of mobile data purchase responses. It iterates
+    over the list, generates a PDF invoice for each response, and saves the invoices to the
+    appdata/pdfs directory.
+    """
+    for mobile_data_sales_order in mobile_data_sales_orders:
+        generate_pdf_invoice(mobile_data_sales_order)

@@ -1,68 +1,101 @@
 """
 This module contains the functions that validate a purchase request. It checks if the customer is
 of legal age, if the credit card number is valid, if the credit card number length is valid, if the
-credit card cvv is valid, and if the credit card expiration date is valid. It returns a string of
-validation errors.
+credit card cvv is valid, and if the credit card expiration date is valid, and raises exceptions if
+any of the validations fail.
 """
 
 import os
 import datetime
 import logging
-from fastapi import HTTPException
 from luhncheck import is_luhn
-from exceptions import (
+from app.exceptions import (
     UnderageException,
     InvalidCreditCardLengthException,
     InvalidCreditCardNumberException,
     InvalidCVVException,
     CreditCardExpiredException,
+    ValidationError,
 )
+from app.model.mobile_data_sell_order import MobileDataSellOrder
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 
-def validate_mobile_sell_order(
-    date_of_birth: datetime.datetime,
-    credit_card_number: str,
-    credit_card_expiration_date: datetime.datetime,
-    credit_card_cvv: str,
-) -> str:
+def validate_mobile_data_sell_orders(
+    mobile_data_sell_orders: list[MobileDataSellOrder],
+):
+    for mobile_data_sell_order in mobile_data_sell_orders:
+        validate_mobile_data_sell_order(mobile_data_sell_order)
+
+
+def validate_mobile_data_sell_order(
+    mobile_data_sell_order: MobileDataSellOrder,
+) -> None:
     """
     This function validates a purchase request. It checks if the customer is of legal age, if the
     credit card number is valid, if the credit card number length is valid, if the credit card cvv
     is valid, and if the credit card expiration date is valid. It returns a string of validation
     errors.
     """
+    errors: list[str] = []
+
     # Step 1: Validate that the requestor is of legal age
     logger.info("Validating the customer is of legal age")
     try:
-        is_customer_of_legal_age(date_of_birth, int(os.getenv("LEGAL_AGE", "18")))
+        is_customer_of_legal_age(
+            mobile_data_sell_order.date_of_birth, int(os.getenv("LEGAL_AGE", "18"))
+        )
     except UnderageException as e:
-        
+        errors.append(str(e))
+        logger.error(str(e))
 
-    logger.info("Validating the credit card number length")
     # Step 2: Validate the credit card number length
-    validation_errors += is_credit_card_number_length_valid(
-        credit_card_number, minimum_card_number_length, maximum_card_number_length
-    )
+    logger.info("Validating the credit card number length")
+    try:
+        is_credit_card_number_length_valid(
+            mobile_data_sell_order.credit_card_number,
+            int(os.getenv("MINIMUM_CARD_NUMBER_LENGTH", "14")),
+            int(os.getenv("MAXIMUM_CARD_NUMBER_LENGTH", "19")),
+        )
+    except InvalidCreditCardLengthException as e:
+        errors.append(str(e))
+        logger.error(str(e))
 
-    logger.info("Validating the credit card number")
     # Step 3: Validate the credit card number
-    validation_errors += is_credit_card_number_valid(credit_card_number)
+    logger.info("Validating the credit card number")
+    try:
+        is_credit_card_number_valid(mobile_data_sell_order.credit_card_number)
+    except InvalidCreditCardNumberException as e:
+        errors.append(str(e))
+        logger.error(str(e))
 
-    logger.info("Validating the credit card cvv")
     # Step 4: Validate the credit card cvv
-    validation_errors += is_cvv_valid(
-        credit_card_cvv, minimum_cvv_length, maximum_cvv_length
-    )
+    logger.info("Validating the credit card cvv")
+    try:
+        is_cvv_valid(
+            mobile_data_sell_order.credit_card_cvv,
+            int(os.getenv("MINIMUM_CVV_LENGTH", "3")),
+            int(os.getenv("MAXIMUM_CVV_LENGTH", "4")),
+        )
+    except InvalidCVVException as e:
+        errors.append(str(e))
+        logger.error(str(e))
 
-    logger.info("Validating the credit card expiration date")
     # Step 5: Validate the credit card expiration date
-    validation_errors += is_credit_card_expired(credit_card_expiration_date)
+    logger.info("Validating the credit card expiration date")
+    try:
+        is_credit_card_expired(mobile_data_sell_order.credit_card_expiration_date)
+    except CreditCardExpiredException as e:
+        errors.append(str(e))
+        logger.error(str(e))
 
-    # Return the validation errors
-    return validation_errors
+    # Step 6: Raise an exception if there are any validation errors
+    if errors:
+        logger.error("Rejecting due to validation errors: %s", errors)
+        mobile_data_sell_order.validation_errors = errors
+        mobile_data_sell_order.status = "Rejected"
 
 
 def is_customer_of_legal_age(date_of_birth: datetime.datetime, legal_age: int) -> None:

@@ -4,7 +4,7 @@ and tables, closing the database connection, and providing a database session fo
 the database.
 """
 
-from app.model.mobile_data_sell_order import CustomerInformation
+from app.model.mobile_data_sell_order import MobileDataSellOrder
 from app.model.mobile_data_purchase_transaction import MobileDataPurchaseTransaction
 from sqlmodel import SQLModel, create_engine
 from sqlalchemy.orm.session import Session
@@ -46,22 +46,23 @@ class DataBaseService:
             yield session
 
     @staticmethod
-    def record_transaction(
-        customer_information: CustomerInformation,
+    def record_transactions(
+        mobile_data_sell_orders: list[MobileDataSellOrder],
         session: Session,
-    ) -> MobileDataPurchaseTransaction:
+    ) -> None:
         """
-        This method records a transaction to the database. It is called by the
+        This method records multiple transactions to the database. It is called by the
         process_mobile_data_purchase_request function after the request has been validated and
         processed.
         """
-        transaction = (
-            MobileDataPurchaseTransaction.build_transaction_from_customer_information(
-                customer_information
+
+        for mobile_data_sell_order in mobile_data_sell_orders:
+            transaction = MobileDataPurchaseTransaction.build_transaction_from_customer_information(
+                mobile_data_sell_order
             )
-        )
-        logger.info("Committing the transaction to the database")
-        session.add(transaction)
-        session.commit()
-        session.refresh(transaction)
-        return transaction
+            logger.info(
+                f"Committing the transaction for BAN {mobile_data_sell_order.billing_account_number} to the database"
+            )
+            session.add(transaction)
+            session.commit()
+            session.refresh(transaction)

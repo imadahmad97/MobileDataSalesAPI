@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field
 import datetime
-from app.model.mobile_data_sell_order import CustomerInformation
+from app.model.mobile_data_sell_order import MobileDataSellOrder
 
 
 class MobileDataPurchaseTransaction(SQLModel, table=True):
@@ -17,7 +17,7 @@ class MobileDataPurchaseTransaction(SQLModel, table=True):
     @classmethod
     def build_transaction_from_customer_information(
         cls,
-        customer_information: CustomerInformation,
+        customer_information: MobileDataSellOrder,
     ) -> "MobileDataPurchaseTransaction":
         """
         This method builds a transaction object from a purchase customer_information and response.
@@ -31,5 +31,5 @@ class MobileDataPurchaseTransaction(SQLModel, table=True):
             billing_account_number=customer_information.billing_account_number,
             requested_mobile_data=customer_information.requested_mobile_data,
             status=customer_information.status,
-            validation_errors=customer_information.validation_errors,
+            validation_errors=", ".join(customer_information.validation_errors),
         )
