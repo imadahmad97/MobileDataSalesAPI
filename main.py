@@ -1,13 +1,13 @@
 """
 This module contains the routes for the mobile data sales API.
-    
+
 Routes:
     /mobile-data-purchase-request
         purchase_request: Request
             The purchase request to be processed.
         db_session: Annotated[Session, Depends(db_service.get_db_session)]
             The database session to be used for the request.
-        
+
         Returns:
             JSONResponse
                 The response to the purchase request.
@@ -18,7 +18,7 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
 from app.service.db_service import DataBaseService
 from app.controller.api_request_handler import (
-    handle_mobile_data_purchase_request,
+    handle_mobile_data_sell_request,
 )
 import logging
 from sqlalchemy.orm import Session
@@ -65,7 +65,7 @@ async def mobile_data_purchase_request_route(
 
     logger.info("Received a mobile data purchase request")
 
-    response: JSONResponse = await handle_mobile_data_purchase_request(
+    response: JSONResponse = await handle_mobile_data_sell_request(
         purchase_request, db_session
     )
 

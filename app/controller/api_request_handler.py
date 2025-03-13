@@ -5,22 +5,21 @@ information, records the transaction in the database, generates a PDF invoice, a
 response with the status and BAN of each request.
 """
 
-import io
-import csv
 import logging
 from sqlalchemy.orm import Session
-from fastapi import Request, HTTPException
+from fastapi import Request
 from fastapi.responses import JSONResponse
 from app.service.db_service import DataBaseService
+from app.service.parser import parse_csv_content
 from app.model.mobile_data_sell_order import MobileDataSellOrder
-from app.service.invoice_generation_service import generate_pdf_invoices
-from app.service.validation_service import validate_mobile_data_sell_orders
+from app.service.invoice_generator import generate_pdf_invoices
+from app.validation.validation_interface import validate_mobile_data_sell_orders
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 
-async def handle_mobile_data_purchase_request(
+async def handle_mobile_data_sell_request(
     api_request: Request, db_session: Session
 ) -> JSONResponse:
     """
@@ -48,31 +47,6 @@ async def handle_mobile_data_purchase_request(
     responses: dict = await get_responses(mobile_data_sell_orders)
 
     return JSONResponse(content=responses)
-
-
-async def parse_csv_content(content: bytes) -> list[MobileDataSellOrder]:
-
-    csv_text: io.StringIO = io.StringIO(content.decode("utf-8"))
-    reader: csv.reader = csv.reader(csv_text)
-    parsed_rows: list[list[str]] = list(reader)
-
-    mobile_data_sell_orders: list[MobileDataSellOrder] = []
-
-    for row in parsed_rows:
-        mobile_data_sell_order = MobileDataSellOrder(
-            name=row[0],
-            date_of_birth=row[1],  # type: ignore
-            credit_card_number=row[2],
-            credit_card_expiration_date=row[3],  # type: ignore
-            credit_card_cvv=row[4],
-            billing_account_number=row[5],
-            requested_mobile_data=row[6],
-            status="Approved",
-            validation_errors=[],
-        )
-        mobile_data_sell_orders.append(mobile_data_sell_order)
-
-    return mobile_data_sell_orders
 
 
 async def get_responses(mobile_data_sell_orders: list[MobileDataSellOrder]) -> dict:

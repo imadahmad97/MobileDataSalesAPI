@@ -1,21 +1,23 @@
 """
-This module contains the functions that validate a purchase request. It checks if the customer is
-of legal age, if the credit card number is valid, if the credit card number length is valid, if the
-credit card cvv is valid, and if the credit card expiration date is valid, and raises exceptions if
-any of the validations fail.
+This module contains the interface for the validation functions. It includes a function to validate
+a list of mobile data sell orders and a function to validate a single mobile data sell order.
 """
 
 import os
-import datetime
 import logging
-from luhncheck import is_luhn
-from app.exceptions import (
+from app.validation.validation_functions import (
+    is_customer_of_legal_age,
+    is_credit_card_number_length_valid,
+    is_credit_card_number_valid,
+    is_cvv_valid,
+    is_credit_card_expired,
+)
+from app.validation.exceptions import (
     UnderageException,
     InvalidCreditCardLengthException,
     InvalidCreditCardNumberException,
     InvalidCVVException,
     CreditCardExpiredException,
-    ValidationError,
 )
 from app.model.mobile_data_sell_order import MobileDataSellOrder
 
@@ -26,7 +28,13 @@ logging.basicConfig(level=logging.DEBUG)
 def validate_mobile_data_sell_orders(
     mobile_data_sell_orders: list[MobileDataSellOrder],
 ):
+    """
+    This function validates a list of mobile data sell orders.
+    """
     for mobile_data_sell_order in mobile_data_sell_orders:
+        logger.info(
+            f"Validating mobile data sell order for BAN: {mobile_data_sell_order.billing_account_number}"
+        )
         validate_mobile_data_sell_order(mobile_data_sell_order)
 
 
@@ -34,10 +42,9 @@ def validate_mobile_data_sell_order(
     mobile_data_sell_order: MobileDataSellOrder,
 ) -> None:
     """
-    This function validates a purchase request. It checks if the customer is of legal age, if the
-    credit card number is valid, if the credit card number length is valid, if the credit card cvv
-    is valid, and if the credit card expiration date is valid. It returns a string of validation
-    errors.
+    This function validates a single mobile data sell order. It does so by calling the individual
+    validation functions and appending any errors to the validation_errors attribute of the
+    MobileDataSellOrder object.
     """
     errors: list[str] = []
 
@@ -96,62 +103,3 @@ def validate_mobile_data_sell_order(
         logger.error("Rejecting due to validation errors: %s", errors)
         mobile_data_sell_order.validation_errors = errors
         mobile_data_sell_order.status = "Rejected"
-
-
-def is_customer_of_legal_age(date_of_birth: datetime.datetime, legal_age: int) -> None:
-    """
-    This function checks if the customer is of legal age.
-    """
-    age: float = (datetime.datetime.now() - date_of_birth).days / 365.2425
-    if age < legal_age:
-        raise UnderageException("Customer is not of legal age.")
-    return None
-
-
-def is_credit_card_number_length_valid(
-    credit_card_number: str,
-    minimum_card_number_length: int,
-    maximum_card_number_length: int,
-) -> None:
-    """
-    This function checks if the credit card number length is between the provided minimum and
-    maximum.
-    """
-    if not (
-        minimum_card_number_length
-        <= len(credit_card_number)
-        <= maximum_card_number_length
-    ):
-        raise InvalidCreditCardLengthException("Credit card number length is invalid.")
-    return None
-
-
-def is_credit_card_number_valid(
-    credit_card_number: str,
-) -> None:
-    """
-    This function checks if the credit card number is valid using the Luhn algorithm.
-    """
-    if not is_luhn(credit_card_number):
-        raise InvalidCreditCardNumberException("Credit card number is invalid.")
-    return None
-
-
-def is_cvv_valid(
-    credit_card_cvv: str, minimum_cvv_length: int, maximum_cvv_length: int
-) -> None:
-    """
-    This function checks if the credit card cvv length is between the provided minimum and maximum.
-    """
-    if not minimum_cvv_length <= len(credit_card_cvv) <= maximum_cvv_length:
-        raise InvalidCVVException("CVV length is invalid.")
-    return None
-
-
-def is_credit_card_expired(credit_card_expiration_date: datetime.datetime) -> None:
-    """
-    This function checks if the credit card expiration date is in the future.
-    """
-    if credit_card_expiration_date < datetime.datetime.now():
-        raise CreditCardExpiredException("Credit card has expired.")
-    return None
