@@ -49,8 +49,9 @@ def generate_qr_code(billing_account_number: str) -> str:
         qr_code_base64: str = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
         return qr_code_base64
-    except Exception:
+    except Exception as e:
         logger.error("Failed to generate the QR code")
+        logger.error(e)
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to generate the QR code",
@@ -85,8 +86,9 @@ def render_html_invoice(
         html_invoice: str = invoice_template.render(data)
 
         return html_invoice
-    except Exception:
+    except Exception as e:
         logger.error("Failed to render the HTML invoice")
+        logger.error(e)
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to render the HTML invoice",
@@ -107,8 +109,9 @@ def generate_pdf_invoice(
         output_path: str = os.path.join("appdata/pdfs", filename)
 
         HTML(string=html_content).write_pdf(target=output_path)
-    except Exception:
+    except Exception as e:
         logger.error("Failed to generate the PDF invoice")
+        logger.error(e)
         raise HTTPException(
             status_code=500,
             detail="Internal Server Error: Failed to generate the PDF invoice",

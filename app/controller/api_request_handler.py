@@ -23,10 +23,9 @@ async def handle_mobile_data_sell_request(
     api_request: Request, db_session: Session
 ) -> JSONResponse:
     """
-    This function handles a mobile data purchase request. It takes a request as input, processes the
-    request into multiple sets of customer information, validates the customer information, records
-    the transaction in the database, generates a PDF invoice, and returns a JSON response with the
-    status and BAN of each request.
+    This function handles a mobile data sell request. It takes a request as input, validates,
+    records, generates PDF invoices, and returns a JSON response with the status and BAN of each
+    request.
     """
 
     # Prep Step: Parse the CSV content into a list of MobileDataSellOrder objects
