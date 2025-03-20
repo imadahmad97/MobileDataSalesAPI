@@ -47,7 +47,7 @@ class DataBaseService:
 
     @staticmethod
     def record_transactions(
-        mobile_data_sell_orders: list[MobileDataSellOrder],
+        sell_orders: list[MobileDataSellOrder],
         session: Session,
     ) -> None:
         """
@@ -56,12 +56,12 @@ class DataBaseService:
         processed.
         """
 
-        for mobile_data_sell_order in mobile_data_sell_orders:
+        for sell_order in sell_orders:
             transaction = MobileDataPurchaseTransaction.build_transaction_from_customer_information(
-                mobile_data_sell_order
+                sell_order
             )
             logger.info(
-                f"Committing the transaction for BAN {mobile_data_sell_order.billing_account_number} to the database"
+                f"Committing the transaction for BAN {sell_order.billing_account_number} to the database"
             )
             session.add(transaction)
             session.commit()
