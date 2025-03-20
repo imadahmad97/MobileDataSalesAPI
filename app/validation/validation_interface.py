@@ -3,16 +3,8 @@ This module contains the interface for the validation functions. It includes a f
 a list of mobile data sell orders and a function to validate a single mobile data sell order.
 """
 
-import os
 import logging
 from app.validation.validation_functions import Validation
-from app.validation.exceptions import (
-    UnderageException,
-    InvalidCreditCardLengthException,
-    InvalidCreditCardNumberException,
-    InvalidCVVException,
-    CreditCardExpiredException,
-)
 from app.model.mobile_data_sell_order import MobileDataSellOrder
 
 logger = logging.getLogger(__name__)
@@ -44,51 +36,36 @@ def validate_mobile_data_sell_order(
 
     # Step 1: Validate that the requestor is of legal age
     logger.info("Validating the customer is of legal age")
-    try:
-        Validation.is_customer_of_legal_age(mobile_data_sell_order.date_of_birth)
-    except UnderageException as e:
-        errors.append(str(e))
-        logger.error(str(e))
+    if not Validation.is_customer_of_legal_age(mobile_data_sell_order.date_of_birth):
+        errors.append("Customer is not of legal age")
 
     # Step 2: Validate the credit card number length
     logger.info("Validating the credit card number length")
-    try:
-        Validation.is_credit_card_number_length_valid(
-            mobile_data_sell_order.credit_card_number,
-        )
-    except InvalidCreditCardLengthException as e:
-        errors.append(str(e))
-        logger.error(str(e))
+    if not Validation.is_credit_card_number_length_valid(
+        mobile_data_sell_order.credit_card_number,
+    ):
+        errors.append("Credit card number length is invalid")
 
     # Step 3: Validate the credit card number
     logger.info("Validating the credit card number")
-    try:
-        Validation.is_credit_card_number_valid(
-            mobile_data_sell_order.credit_card_number
-        )
-    except InvalidCreditCardNumberException as e:
-        errors.append(str(e))
-        logger.error(str(e))
+    if not Validation.is_credit_card_number_valid(
+        mobile_data_sell_order.credit_card_number
+    ):
+        errors.append("Credit card number is invalid")
 
     # Step 4: Validate the credit card cvv
     logger.info("Validating the credit card cvv")
-    try:
-        Validation.is_cvv_valid(
-            mobile_data_sell_order.credit_card_cvv,
-        )
-    except InvalidCVVException as e:
-        errors.append(str(e))
-        logger.error(str(e))
+    if not Validation.is_cvv_valid(
+        mobile_data_sell_order.credit_card_cvv,
+    ):
+        errors.append("CVV length is invalid")
 
     # Step 5: Validate the credit card expiration date
     logger.info("Validating the credit card expiration date")
-    try:
-        Validation.is_credit_card_expired(
-            mobile_data_sell_order.credit_card_expiration_date
-        )
-    except CreditCardExpiredException as e:
-        errors.append(str(e))
-        logger.error(str(e))
+    if not Validation.is_credit_card_expired(
+        mobile_data_sell_order.credit_card_expiration_date
+    ):
+        errors.append("Credit card has expired")
 
     # Step 6: Raise an exception if there are any validation errors
     if errors:

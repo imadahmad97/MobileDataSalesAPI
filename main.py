@@ -24,11 +24,8 @@ import logging
 from sqlalchemy.orm import Session
 from typing import Annotated
 from contextlib import asynccontextmanager
-import os
-from dotenv import load_dotenv
 import config
 
-load_dotenv()
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
