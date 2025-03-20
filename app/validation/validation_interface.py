@@ -5,13 +5,7 @@ a list of mobile data sell orders and a function to validate a single mobile dat
 
 import os
 import logging
-from app.validation.validation_functions import (
-    is_customer_of_legal_age,
-    is_credit_card_number_length_valid,
-    is_credit_card_number_valid,
-    is_cvv_valid,
-    is_credit_card_expired,
-)
+from app.validation.validation_functions import Validation
 from app.validation.exceptions import (
     UnderageException,
     InvalidCreditCardLengthException,
@@ -51,9 +45,7 @@ def validate_mobile_data_sell_order(
     # Step 1: Validate that the requestor is of legal age
     logger.info("Validating the customer is of legal age")
     try:
-        is_customer_of_legal_age(
-            mobile_data_sell_order.date_of_birth, int(os.getenv("LEGAL_AGE", "18"))
-        )
+        Validation.is_customer_of_legal_age(mobile_data_sell_order.date_of_birth)
     except UnderageException as e:
         errors.append(str(e))
         logger.error(str(e))
@@ -61,10 +53,8 @@ def validate_mobile_data_sell_order(
     # Step 2: Validate the credit card number length
     logger.info("Validating the credit card number length")
     try:
-        is_credit_card_number_length_valid(
+        Validation.is_credit_card_number_length_valid(
             mobile_data_sell_order.credit_card_number,
-            int(os.getenv("MINIMUM_CARD_NUMBER_LENGTH", "14")),
-            int(os.getenv("MAXIMUM_CARD_NUMBER_LENGTH", "19")),
         )
     except InvalidCreditCardLengthException as e:
         errors.append(str(e))
@@ -73,7 +63,9 @@ def validate_mobile_data_sell_order(
     # Step 3: Validate the credit card number
     logger.info("Validating the credit card number")
     try:
-        is_credit_card_number_valid(mobile_data_sell_order.credit_card_number)
+        Validation.is_credit_card_number_valid(
+            mobile_data_sell_order.credit_card_number
+        )
     except InvalidCreditCardNumberException as e:
         errors.append(str(e))
         logger.error(str(e))
@@ -81,10 +73,8 @@ def validate_mobile_data_sell_order(
     # Step 4: Validate the credit card cvv
     logger.info("Validating the credit card cvv")
     try:
-        is_cvv_valid(
+        Validation.is_cvv_valid(
             mobile_data_sell_order.credit_card_cvv,
-            int(os.getenv("MINIMUM_CVV_LENGTH", "3")),
-            int(os.getenv("MAXIMUM_CVV_LENGTH", "4")),
         )
     except InvalidCVVException as e:
         errors.append(str(e))
@@ -93,7 +83,9 @@ def validate_mobile_data_sell_order(
     # Step 5: Validate the credit card expiration date
     logger.info("Validating the credit card expiration date")
     try:
-        is_credit_card_expired(mobile_data_sell_order.credit_card_expiration_date)
+        Validation.is_credit_card_expired(
+            mobile_data_sell_order.credit_card_expiration_date
+        )
     except CreditCardExpiredException as e:
         errors.append(str(e))
         logger.error(str(e))

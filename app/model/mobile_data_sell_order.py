@@ -51,7 +51,7 @@ class MobileDataSellOrder(BaseModel):
         return value
 
     @classmethod
-    async def construct_customer_information_object_from_list(
+    async def build_mobile_data_sell_order_from_list(
         cls, customer_info: list[str]
     ) -> "MobileDataSellOrder":
         """

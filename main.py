@@ -26,14 +26,14 @@ from typing import Annotated
 from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
+import config
 
 load_dotenv()
-path_to_db_file = os.getenv("PATH_TO_DB_FILE", "sqlite:///./transactions.db")
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-db_service = DataBaseService(path_to_db_file)
+db_service = DataBaseService(config.PATH_TO_DB_FILE)
 db_session = Annotated[Session, Depends(db_service.get_db_session)]
 
 
