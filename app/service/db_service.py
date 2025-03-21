@@ -57,8 +57,10 @@ class DataBaseService:
         """
 
         for sell_order in sell_orders:
-            transaction = MobileDataPurchaseTransaction.build_transaction_from_customer_information(
-                sell_order
+            transaction = (
+                MobileDataPurchaseTransaction.build_transaction_from_sell_order(
+                    sell_order
+                )
             )
             logger.info(
                 f"Committing the transaction for BAN {sell_order.billing_account_number} to the database"

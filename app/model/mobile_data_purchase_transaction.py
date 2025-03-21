@@ -15,7 +15,7 @@ class MobileDataPurchaseTransaction(SQLModel, table=True):
     validation_errors: str = Field()
 
     @classmethod
-    def build_transaction_from_customer_information(
+    def build_transaction_from_sell_order(
         cls,
         customer_information: MobileDataSellOrder,
     ) -> "MobileDataPurchaseTransaction":
