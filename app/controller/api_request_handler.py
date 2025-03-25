@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from app.service.db_service import DataBaseService
+from app.validation.validator import Validator
 from app.service.parser import parse_csv_content
 from app.model.mobile_data_sell_order import MobileDataSellOrder
 from app.service.invoice_generator import generate_pdf_invoices
@@ -20,7 +21,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 async def handle_mobile_data_sell_request(
-    api_request: Request, db_session: Session
+    api_request: Request, db_session: Session, validator: Validator
 ) -> JSONResponse:
     """
     This function handles a mobile data sell request. It takes a request as input, validates,
@@ -34,7 +35,7 @@ async def handle_mobile_data_sell_request(
     )
 
     # Step 1: Validate the mobile data sell orders
-    validate_sell_orders(sell_orders)
+    validate_sell_orders(sell_orders, validator)
 
     # Step 2: Record the transaction in the database
     DataBaseService.record_transactions(sell_orders, db_session)
