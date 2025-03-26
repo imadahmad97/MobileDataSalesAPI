@@ -35,16 +35,16 @@ async def handle_mobile_data_sell_request(
     )
 
     # Step 1: Validate the mobile data sell orders
-    validate_sell_orders(sell_orders, validator)
+    validated_sell_orders = validate_sell_orders(sell_orders, validator)
 
     # Step 2: Record the transaction in the database
-    DataBaseService.record_transactions(sell_orders, db_session)
+    DataBaseService.record_transactions(validated_sell_orders, db_session)
 
     # Step 3: Generate PDF invoices
-    generate_pdf_invoices(sell_orders)
+    generate_pdf_invoices(validated_sell_orders)
 
     # Step 4: Get the responses
-    responses: dict = await get_responses(sell_orders)
+    responses: dict = await get_responses(validated_sell_orders)
 
     return JSONResponse(content=responses)
 
