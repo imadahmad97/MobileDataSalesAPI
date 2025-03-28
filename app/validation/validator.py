@@ -7,6 +7,7 @@ import datetime
 from luhncheck import is_luhn
 
 
+# CHANGE NO STATIC METHODS
 class Validator:
     def __init__(
         self,
@@ -15,7 +16,7 @@ class Validator:
         maximum_card_number_length,
         minimum_cvv_length,
         maximum_cvv_length,
-        days_in_year,
+        days_in_year,  # CHANGE ADD IS_LUHN TO INSTANTIATION
     ):
         self.legal_age = legal_age
         self.minimum_card_number_length = minimum_card_number_length
@@ -72,7 +73,7 @@ class Validator:
             return False
         return True
 
-    @staticmethod
+    @staticmethod  # CHANGE PASS TIME_NOW AS ARGUMENT
     def is_credit_card_expired(credit_card_expiration_date: datetime.datetime) -> bool:
         """
         This function checks if the credit card expiration date is in the future.

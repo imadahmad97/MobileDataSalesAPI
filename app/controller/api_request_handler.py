@@ -49,7 +49,9 @@ async def handle_mobile_data_sell_request(
     return JSONResponse(content=responses)
 
 
-async def get_responses(sell_orders: list[MobileDataSellOrder]) -> dict:
+async def get_responses(
+    sell_orders: list[MobileDataSellOrder],
+) -> dict:  # CHANGE MOVE THIS LOGIC TO THE ABOVE FUNCTION
     """
     This function returns a dictionary containing the status and BAN of each mobile data sell order.
     """

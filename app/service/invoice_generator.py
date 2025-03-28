@@ -3,6 +3,8 @@ This module contains the functions for generating invoices. It includes a functi
 QR code, a function for rendering an HTML invoice, and a function for generating a PDF invoice.
 """
 
+# CHANGE ADD UNDERSCORE TO INTERNAL FUNCTIONS
+# CHANGE MAKE THIS A CLASS
 import os
 import datetime
 import base64

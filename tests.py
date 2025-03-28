@@ -3,6 +3,7 @@ from app.validation import validation_interface
 import datetime
 
 
+# CHANGE COVER ALL FUNCTIONS and separate into different test files
 class TestValidationInterface(unittest.TestCase):
     def test_is_customer_of_legal_age(self):
         self.assertEqual(

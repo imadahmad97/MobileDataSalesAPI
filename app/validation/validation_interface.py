@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG)
 def validate_sell_orders(
     sell_orders: list[MobileDataSellOrder],
     validator: Validator,
-):
+):  # CHANGE ADD TYPE
     """
     This function validates a list of mobile data sell orders.
     """
