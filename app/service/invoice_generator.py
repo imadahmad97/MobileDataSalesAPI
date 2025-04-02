@@ -31,8 +31,15 @@ class InvoiceGenerator:
     rendering an HTML invoice, and generating a PDF invoice.
     """
 
-    def __init__(self):
-        pass
+    def __init__(
+        self, invoice_template_path: str, pdf_output_path: str, base_url: str
+    ) -> None:
+        """
+        Initializes the InvoiceGenerator class with the paths for the invoice template and PDF output.
+        """
+        self.invoice_template_path: str = invoice_template_path
+        self.pdf_output_path: str = pdf_output_path
+        self.base_url: str = base_url
 
     def generate_qr_code(self, billing_account_number: str) -> str:
         """
@@ -41,7 +48,7 @@ class InvoiceGenerator:
         qr code.
         """
         logger.info("Generating a QR code for the billing account number")
-        url: str = f"https://telus.com/user/{billing_account_number}"
+        url: str = f"{self.base_url}/{billing_account_number}"
         qr: qrcode.QRCode = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -69,7 +76,9 @@ class InvoiceGenerator:
         """
         logger.info("Rendering the HTML invoice")
 
-        template_env: Environment = Environment(loader=FileSystemLoader("templates"))
+        template_env: Environment = Environment(
+            loader=FileSystemLoader(self.invoice_template_path)
+        )
         invoice_template: Template = template_env.get_template("invoice_template.html")
         qr_code: str = self.generate_qr_code(sell_order.billing_account_number)
 
@@ -99,8 +108,7 @@ class InvoiceGenerator:
         """
         html_content: str = self.render_html_invoice(sell_order)
         filename: str = f"invoice_{sell_order.billing_account_number}.pdf"
-        output_path: str = os.path.join("appdata/pdfs", filename)
-
+        output_path: str = os.path.join(self.pdf_output_path, filename)
         HTML(string=html_content).write_pdf(target=output_path)
 
     def generate_pdf_invoices(

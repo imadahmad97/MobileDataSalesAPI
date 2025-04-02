@@ -10,3 +10,8 @@ MAXIMUM_CARD_NUMBER_LENGTH: int = 19
 
 MINIMUM_CVV_LENGTH: int = 3
 MAXIMUM_CVV_LENGTH: int = 4
+
+# Invoice Generation Variables
+INVOICE_TEMPLATE_PATH: str = "templates"
+PDF_OUTPUT_PATH: str = "appdata/pdfs"
+BASE_URL: str = "https://telus.com/user"

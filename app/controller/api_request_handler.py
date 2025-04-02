@@ -6,6 +6,7 @@ response with the status and BAN of each request.
 """
 
 import logging
+import config
 from sqlalchemy.orm import Session
 from fastapi import Request
 from fastapi.responses import JSONResponse
@@ -41,7 +42,9 @@ async def handle_mobile_data_sell_request(
     DataBaseService.record_transactions(validated_sell_orders, db_session)
 
     # Step 3: Generate PDF invoices
-    invoice_generator = InvoiceGenerator()
+    invoice_generator = InvoiceGenerator(
+        config.INVOICE_TEMPLATE_PATH, config.PDF_OUTPUT_PATH, config.BASE_URL
+    )
     invoice_generator.generate_pdf_invoices(validated_sell_orders)
 
     # Step 4: Get the responses
