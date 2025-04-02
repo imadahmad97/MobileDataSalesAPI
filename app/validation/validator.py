@@ -4,10 +4,8 @@ functions are used by the validation_interface module to validate the customer's
 """
 
 import datetime
-from luhncheck import is_luhn
 
 
-# CHANGE NO STATIC METHODS
 class Validator:
     def __init__(
         self,
@@ -16,7 +14,8 @@ class Validator:
         maximum_card_number_length,
         minimum_cvv_length,
         maximum_cvv_length,
-        days_in_year,  # CHANGE ADD IS_LUHN TO INSTANTIATION
+        days_in_year,
+        luhn_validator,
     ):
         self.legal_age = legal_age
         self.minimum_card_number_length = minimum_card_number_length
@@ -24,6 +23,7 @@ class Validator:
         self.minimum_cvv_length = minimum_cvv_length
         self.maximum_cvv_length = maximum_cvv_length
         self.days_in_year = days_in_year
+        self.luhn_validator = luhn_validator
 
     def is_customer_of_legal_age(self, date_of_birth: datetime.datetime) -> bool:
         """
@@ -50,14 +50,14 @@ class Validator:
             return False
         return True
 
-    @staticmethod
     def is_credit_card_number_valid(
+        self,
         credit_card_number: str,
     ) -> bool:
         """
         This function checks if the credit card number is valid using the Luhn algorithm.
         """
-        if not is_luhn(credit_card_number):
+        if not self.luhn_validator(credit_card_number):
             return False
         return True
 
@@ -73,8 +73,9 @@ class Validator:
             return False
         return True
 
-    @staticmethod  # CHANGE PASS TIME_NOW AS ARGUMENT
-    def is_credit_card_expired(credit_card_expiration_date: datetime.datetime) -> bool:
+    def is_credit_card_expired(
+        self, credit_card_expiration_date: datetime.datetime
+    ) -> bool:
         """
         This function checks if the credit card expiration date is in the future.
         """

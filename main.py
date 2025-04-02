@@ -27,6 +27,7 @@ from typing import Annotated
 from contextlib import asynccontextmanager
 import config
 from app.service.invoice_generator import InvoiceGenerator
+from luhncheck import is_luhn
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -41,6 +42,7 @@ validator = Validator(
     minimum_cvv_length=config.MINIMUM_CVV_LENGTH,
     maximum_cvv_length=config.MAXIMUM_CVV_LENGTH,
     days_in_year=config.DAYS_IN_YEAR,
+    luhn_validator=is_luhn,
 )
 
 invoice_generator = InvoiceGenerator(
