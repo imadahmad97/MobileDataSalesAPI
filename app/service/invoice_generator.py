@@ -25,87 +25,96 @@ logging.getLogger("weasyprint").setLevel(logging.ERROR)
 logging.getLogger("PIL").setLevel(logging.ERROR)
 
 
-def generate_qr_code(billing_account_number: str) -> str:
+class InvoiceGenerator:
     """
-    This function generates a QR code for a given billing account number. It generates the code,
-    adds the URL with the billing account number, and returns the base64 encoded string of the
-    qr code.
+    This class contains methods for generating invoices. It includes methods for generating a QR code,
+    rendering an HTML invoice, and generating a PDF invoice.
     """
-    logger.info("Generating a QR code for the billing account number")
-    url: str = f"https://telus.com/user/{billing_account_number}"
-    qr: qrcode.QRCode = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=5,
-        border=2,
-    )
-    qr.add_data(url)
-    qr.make(fit=True)
 
-    img: qrcode.image.pil.PilImage = qr.make_image(fill="black", back_color="white")
+    def __init__(self):
+        pass
 
-    buffer: io.BytesIO = io.BytesIO()
-    img.save(buffer, format="PNG")
-    qr_code_base64: str = base64.b64encode(buffer.getvalue()).decode("utf-8")
-
-    return qr_code_base64
-
-
-def render_html_invoice(
-    sell_order: "MobileDataSellOrder",
-) -> str:
-    """
-    This function renders an HTML invoice containing the proided data and generated QR code. It
-    returns the rendered HTML as a string.
-    """
-    logger.info("Rendering the HTML invoice")
-
-    template_env: Environment = Environment(loader=FileSystemLoader("templates"))
-    invoice_template: Template = template_env.get_template("invoice_template.html")
-    qr_code: str = generate_qr_code(sell_order.billing_account_number)
-
-    data: dict = {
-        "name": sell_order.name,
-        "credit_card_number": sell_order.credit_card_number[:-8],
-        "billing_account_number": sell_order.billing_account_number,
-        "requested_mobile_data": sell_order.requested_mobile_data,
-        "status": sell_order.status,
-        "validation_errors": sell_order.validation_errors,
-        "date": datetime.datetime.now().strftime("%Y-%m-%d"),
-        "qr_code": qr_code,
-    }
-
-    html_invoice: str = invoice_template.render(data)
-
-    return html_invoice
-
-
-def generate_pdf_invoice(
-    sell_order: "MobileDataSellOrder",
-) -> None:
-    """
-    This function generates a PDF invoice for a given mobile data purchase response. It renders the
-    invoice as an HTML string, writes the HTML to a PDF file, and saves the file to the appdata/pdfs
-    directory.
-    """
-    html_content: str = render_html_invoice(sell_order)
-    filename: str = f"invoice_{sell_order.billing_account_number}.pdf"
-    output_path: str = os.path.join("appdata/pdfs", filename)
-
-    HTML(string=html_content).write_pdf(target=output_path)
-
-
-def generate_pdf_invoices(
-    sell_orders: list["MobileDataSellOrder"],
-) -> None:
-    """
-    This function generates PDF invoices for a list of mobile data purchase responses. It iterates
-    over the list, generates a PDF invoice for each response, and saves the invoices to the
-    appdata/pdfs directory.
-    """
-    for sell_order in sell_orders:
-        logger.info(
-            f"Generating a PDF invoice for BAN {sell_order.billing_account_number
-        }"
+    def generate_qr_code(self, billing_account_number: str) -> str:
+        """
+        This function generates a QR code for a given billing account number. It generates the code,
+        adds the URL with the billing account number, and returns the base64 encoded string of the
+        qr code.
+        """
+        logger.info("Generating a QR code for the billing account number")
+        url: str = f"https://telus.com/user/{billing_account_number}"
+        qr: qrcode.QRCode = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=5,
+            border=2,
         )
-        generate_pdf_invoice(sell_order)
+        qr.add_data(url)
+        qr.make(fit=True)
+
+        img: qrcode.image.pil.PilImage = qr.make_image(fill="black", back_color="white")
+
+        buffer: io.BytesIO = io.BytesIO()
+        img.save(buffer, format="PNG")
+        qr_code_base64: str = base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+        return qr_code_base64
+
+    def render_html_invoice(
+        self,
+        sell_order: "MobileDataSellOrder",
+    ) -> str:
+        """
+        This function renders an HTML invoice containing the proided data and generated QR code. It
+        returns the rendered HTML as a string.
+        """
+        logger.info("Rendering the HTML invoice")
+
+        template_env: Environment = Environment(loader=FileSystemLoader("templates"))
+        invoice_template: Template = template_env.get_template("invoice_template.html")
+        qr_code: str = self.generate_qr_code(sell_order.billing_account_number)
+
+        data: dict = {
+            "name": sell_order.name,
+            "credit_card_number": sell_order.credit_card_number[:-8],
+            "billing_account_number": sell_order.billing_account_number,
+            "requested_mobile_data": sell_order.requested_mobile_data,
+            "status": sell_order.status,
+            "validation_errors": sell_order.validation_errors,
+            "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "qr_code": qr_code,
+        }
+
+        html_invoice: str = invoice_template.render(data)
+
+        return html_invoice
+
+    def generate_pdf_invoice(
+        self,
+        sell_order: "MobileDataSellOrder",
+    ) -> None:
+        """
+        This function generates a PDF invoice for a given mobile data purchase response. It renders the
+        invoice as an HTML string, writes the HTML to a PDF file, and saves the file to the appdata/pdfs
+        directory.
+        """
+        html_content: str = self.render_html_invoice(sell_order)
+        filename: str = f"invoice_{sell_order.billing_account_number}.pdf"
+        output_path: str = os.path.join("appdata/pdfs", filename)
+
+        HTML(string=html_content).write_pdf(target=output_path)
+
+    def generate_pdf_invoices(
+        self,
+        sell_orders: list["MobileDataSellOrder"],
+    ) -> None:
+        """
+        This function generates PDF invoices for a list of mobile data purchase responses. It iterates
+        over the list, generates a PDF invoice for each response, and saves the invoices to the
+        appdata/pdfs directory.
+        """
+        for sell_order in sell_orders:
+            logger.info(
+                f"Generating a PDF invoice for BAN {sell_order.billing_account_number
+            }"
+            )
+            self.generate_pdf_invoice(sell_order)

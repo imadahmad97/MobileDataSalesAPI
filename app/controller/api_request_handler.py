@@ -13,7 +13,7 @@ from app.service.db_service import DataBaseService
 from app.validation.validator import Validator
 from app.service.parser import parse_csv_content
 from app.model.mobile_data_sell_order import MobileDataSellOrder
-from app.service.invoice_generator import generate_pdf_invoices
+from app.service.invoice_generator import InvoiceGenerator
 from app.validation.validation_interface import validate_sell_orders
 
 logger = logging.getLogger(__name__)
@@ -41,25 +41,16 @@ async def handle_mobile_data_sell_request(
     DataBaseService.record_transactions(validated_sell_orders, db_session)
 
     # Step 3: Generate PDF invoices
-    generate_pdf_invoices(validated_sell_orders)
+    invoice_generator = InvoiceGenerator()
+    invoice_generator.generate_pdf_invoices(validated_sell_orders)
 
     # Step 4: Get the responses
-    responses: dict = await get_responses(validated_sell_orders)
-
-    return JSONResponse(content=responses)
-
-
-async def get_responses(
-    sell_orders: list[MobileDataSellOrder],
-) -> dict:  # CHANGE MOVE THIS LOGIC TO THE ABOVE FUNCTION
-    """
-    This function returns a dictionary containing the status and BAN of each mobile data sell order.
-    """
     responses: dict = {}
 
-    for sell_order in sell_orders:
+    for sell_order in validated_sell_orders:
         responses[f"Status for BAN {sell_order.billing_account_number}"] = (
             sell_order.status
         )
 
-    return responses
+    # Step 5: Return the JSON response
+    return JSONResponse(content=responses)
