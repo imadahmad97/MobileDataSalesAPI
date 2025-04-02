@@ -26,7 +26,7 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 from contextlib import asynccontextmanager
 import config
-
+from app.service.invoice_generator import InvoiceGenerator
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -41,6 +41,12 @@ validator = Validator(
     minimum_cvv_length=config.MINIMUM_CVV_LENGTH,
     maximum_cvv_length=config.MAXIMUM_CVV_LENGTH,
     days_in_year=config.DAYS_IN_YEAR,
+)
+
+invoice_generator = InvoiceGenerator(
+    invoice_template_path=config.INVOICE_TEMPLATE_PATH,
+    pdf_output_path=config.PDF_OUTPUT_PATH,
+    base_url=config.BASE_URL,
 )
 
 
@@ -73,7 +79,7 @@ async def mobile_data_purchase_request_route(
     logger.info("Received a mobile data purchase request")
 
     response: JSONResponse = await handle_mobile_data_sell_request(
-        purchase_request, db_session, validator
+        purchase_request, db_session, validator, invoice_generator
     )
 
     logger.info("Successfully completed the mobile data purchase request")

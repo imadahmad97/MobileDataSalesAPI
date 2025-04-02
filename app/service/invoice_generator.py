@@ -4,7 +4,6 @@ QR code, a function for rendering an HTML invoice, and a function for generating
 """
 
 # CHANGE ADD UNDERSCORE TO INTERNAL FUNCTIONS
-# CHANGE MAKE THIS A CLASS
 import os
 import datetime
 import base64
@@ -41,7 +40,7 @@ class InvoiceGenerator:
         self.pdf_output_path: str = pdf_output_path
         self.base_url: str = base_url
 
-    def generate_qr_code(self, billing_account_number: str) -> str:
+    def _generate_qr_code(self, billing_account_number: str) -> str:
         """
         This function generates a QR code for a given billing account number. It generates the code,
         adds the URL with the billing account number, and returns the base64 encoded string of the
@@ -66,7 +65,7 @@ class InvoiceGenerator:
 
         return qr_code_base64
 
-    def render_html_invoice(
+    def _render_html_invoice(
         self,
         sell_order: "MobileDataSellOrder",
     ) -> str:
@@ -80,7 +79,7 @@ class InvoiceGenerator:
             loader=FileSystemLoader(self.invoice_template_path)
         )
         invoice_template: Template = template_env.get_template("invoice_template.html")
-        qr_code: str = self.generate_qr_code(sell_order.billing_account_number)
+        qr_code: str = self._generate_qr_code(sell_order.billing_account_number)
 
         data: dict = {
             "name": sell_order.name,
@@ -97,7 +96,7 @@ class InvoiceGenerator:
 
         return html_invoice
 
-    def generate_pdf_invoice(
+    def _generate_pdf_invoice(
         self,
         sell_order: "MobileDataSellOrder",
     ) -> None:
@@ -106,7 +105,7 @@ class InvoiceGenerator:
         invoice as an HTML string, writes the HTML to a PDF file, and saves the file to the appdata/pdfs
         directory.
         """
-        html_content: str = self.render_html_invoice(sell_order)
+        html_content: str = self._render_html_invoice(sell_order)
         filename: str = f"invoice_{sell_order.billing_account_number}.pdf"
         output_path: str = os.path.join(self.pdf_output_path, filename)
         HTML(string=html_content).write_pdf(target=output_path)
@@ -125,4 +124,4 @@ class InvoiceGenerator:
                 f"Generating a PDF invoice for BAN {sell_order.billing_account_number
             }"
             )
-            self.generate_pdf_invoice(sell_order)
+            self._generate_pdf_invoice(sell_order)
