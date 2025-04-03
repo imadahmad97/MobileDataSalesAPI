@@ -30,7 +30,13 @@ class Validator:
         """
         This function checks if the customer is of legal age.
         """
-        age: float = (datetime.datetime.now() - date_of_birth).days / self.days_in_year
+        age: int = datetime.datetime.now().year - date_of_birth.year
+        if date_of_birth.month > datetime.datetime.now().month:
+            age -= 1
+        elif date_of_birth.month == datetime.datetime.now().month:
+            if date_of_birth.day > datetime.datetime.now().day:
+                age -= 1
+
         if age < self.legal_age:
             return False
         return True
@@ -80,6 +86,6 @@ class Validator:
         """
         This function checks if the credit card expiration date is in the future.
         """
-        if credit_card_expiration_date < datetime.datetime.now():
+        if credit_card_expiration_date <= datetime.datetime.now():
             return False
         return True

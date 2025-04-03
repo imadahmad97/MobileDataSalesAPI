@@ -3,7 +3,7 @@ PATH_TO_DB_FILE = r"sqlite:///C:\Users\t767284\Documents\repos\MobileDataSalesAP
 
 # Validation Variables
 LEGAL_AGE: int = 18
-DAYS_IN_YEAR: int = 365
+DAYS_IN_YEAR: int = 365.25
 
 MINIMUM_CARD_NUMBER_LENGTH: int = 13
 MAXIMUM_CARD_NUMBER_LENGTH: int = 19
