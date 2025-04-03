@@ -6,6 +6,7 @@ functions are used by the validation_interface module to validate the customer's
 import datetime
 
 
+# CHANGE NAME OF VALIDATOR TO SOMETHING MORE SPECIFIC
 class Validator:
     def __init__(
         self,
