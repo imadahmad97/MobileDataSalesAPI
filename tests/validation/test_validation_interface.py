@@ -60,75 +60,47 @@ test_user_all_errors.date_of_birth = datetime.datetime(2010, 10, 1, 0, 0)
 
 
 def test_validate_sell_orders():
-    assert (
-        validate_sell_orders([test_user_no_errors], validator)[0].status == "Approved"
-    )
-    assert (
-        validate_sell_orders([test_user_no_errors], validator)[0].validation_errors
-        == []
+    validated_sell_orders = validate_sell_orders(
+        [
+            test_user_no_errors,
+            test_user_expired_card,
+            test_user_invalid_cvv,
+            test_user_invalid_card_number,
+            test_user_invalid_card_number_length,
+            test_user_not_of_legal_age,
+            test_user_invalid_cvv_and_card_number,
+            test_user_all_errors,
+        ],
+        validator,
     )
 
-    assert (
-        validate_sell_orders(
-            [
-                test_user_no_errors,
-                test_user_expired_card,
-                test_user_invalid_cvv,
-                test_user_invalid_card_number,
-                test_user_invalid_card_number_length,
-                test_user_not_of_legal_age,
-                test_user_invalid_cvv_and_card_number,
-                test_user_all_errors,
-            ],
-            validator,
-        )[0].status
-        == "Approved"
-    )
-    assert (
-        validate_sell_orders([test_user_invalid_card_number], validator)[0].status
-        == "Rejected"
-    )
-    assert validate_sell_orders([test_user_invalid_card_number], validator)[
-        0
-    ].validation_errors == ["Credit card number is invalid"]
-
-    assert (
-        validate_sell_orders([test_user_invalid_card_number_length], validator)[
-            0
-        ].status
-        == "Rejected"
-    )
-    assert validate_sell_orders([test_user_invalid_card_number_length], validator)[
-        0
-    ].validation_errors == ["Credit card number length is invalid"]
-
-    assert (
-        validate_sell_orders([test_user_not_of_legal_age], validator)[0].status
-        == "Rejected"
-    )
-    assert validate_sell_orders([test_user_not_of_legal_age], validator)[
-        0
-    ].validation_errors == ["Customer is not of legal age"]
-
-    assert (
-        validate_sell_orders([test_user_invalid_cvv_and_card_number], validator)[
-            0
-        ].status
-        == "Rejected"
-    )
-    assert validate_sell_orders([test_user_invalid_cvv_and_card_number], validator)[
-        0
-    ].validation_errors == [
+    assert len(validated_sell_orders) == 8
+    assert validated_sell_orders[0].status == "Approved"
+    assert validated_sell_orders[0].validation_errors == []
+    assert validated_sell_orders[1].status == "Rejected"
+    assert validated_sell_orders[1].validation_errors == ["Credit card has expired"]
+    assert validated_sell_orders[2].status == "Rejected"
+    assert validated_sell_orders[2].validation_errors == ["CVV length is invalid"]
+    assert validated_sell_orders[3].status == "Rejected"
+    assert validated_sell_orders[3].validation_errors == [
+        "Credit card number is invalid"
+    ]
+    assert validated_sell_orders[4].status == "Rejected"
+    assert validated_sell_orders[4].validation_errors == [
+        "Credit card number length is invalid"
+    ]
+    assert validated_sell_orders[5].status == "Rejected"
+    assert validated_sell_orders[5].validation_errors == [
+        "Customer is not of legal age"
+    ]
+    assert validated_sell_orders[6].status == "Rejected"
+    assert validated_sell_orders[6].validation_errors == [
         "Credit card number is invalid",
         "CVV length is invalid",
     ]
 
-    assert (
-        validate_sell_orders([test_user_all_errors], validator)[0].status == "Rejected"
-    )
-    assert validate_sell_orders([test_user_all_errors], validator)[
-        0
-    ].validation_errors == [
+    assert validated_sell_orders[7].status == "Rejected"
+    assert validated_sell_orders[7].validation_errors == [
         "Customer is not of legal age",
         "Credit card number length is invalid",
         "Credit card number is invalid",
