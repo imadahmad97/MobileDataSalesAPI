@@ -33,9 +33,7 @@ async def handle_mobile_data_sell_request(
     """
 
     # Prep Step: Parse the CSV content into a list of MobileDataSellOrder objects
-    sell_orders: list[MobileDataSellOrder] = await parse_csv_content(
-        await api_request.body()
-    )
+    sell_orders: list[MobileDataSellOrder] = parse_csv_content(await api_request.body())
 
     # Step 1: Validate the mobile data sell orders
     validated_sell_orders = validate_sell_orders(sell_orders, validator)
