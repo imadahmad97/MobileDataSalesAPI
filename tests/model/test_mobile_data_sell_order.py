@@ -97,10 +97,10 @@ def test_build_mobile_data_sell_order_from_list_invalid_date_of_birth():
         [],
     ]
 
-    with pytest.raises(ValidationError) as exc_info:
+    with pytest.raises(ValidationError) as error_info:
         MobileDataSellOrder.build_mobile_data_sell_order_from_list(
             customer_info_invalid_dob
         )
 
-    error_message = str(exc_info.value)
+    error_message = str(error_info.value)
     assert "date_of_birth" in error_message
