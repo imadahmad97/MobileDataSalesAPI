@@ -2,14 +2,14 @@ from app.validation.validation_interface import (
     validate_sell_orders,
     validate_sell_order,
 )
-from app.validation.validator import Validator
+from app.validation.validator import CreditRequestValidator
 from app.model.mobile_data_sell_order import MobileDataSellOrder
 import config
 from luhncheck import is_luhn
 import datetime
 from copy import deepcopy
 
-validator = Validator(
+validator = CreditRequestValidator(
     config.LEGAL_AGE,
     config.MINIMUM_CARD_NUMBER_LENGTH,
     config.MAXIMUM_CARD_NUMBER_LENGTH,

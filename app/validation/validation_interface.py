@@ -4,7 +4,7 @@ a list of mobile data sell orders and a function to validate a single mobile dat
 """
 
 import logging
-from app.validation.validator import Validator
+from app.validation.validator import CreditRequestValidator
 from app.model.mobile_data_sell_order import MobileDataSellOrder
 from copy import deepcopy
 
@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def validate_sell_orders(
     sell_orders: list[MobileDataSellOrder],
-    validator: Validator,
+    validator: CreditRequestValidator,
 ) -> list[MobileDataSellOrder]:
     """
     This function validates a list of mobile data sell orders.
@@ -30,7 +30,7 @@ def validate_sell_orders(
 
 
 def validate_sell_order(
-    sell_order: MobileDataSellOrder, validator: Validator
+    sell_order: MobileDataSellOrder, validator: CreditRequestValidator
 ) -> MobileDataSellOrder:
     """
     This function validates a single mobile data sell order. It does so by calling the individual

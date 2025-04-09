@@ -1,10 +1,10 @@
-from app.validation.validator import Validator
+from app.validation.validator import CreditRequestValidator
 import config
 from luhncheck import is_luhn
 import datetime
 from unittest import mock
 
-validator = Validator(
+validator = CreditRequestValidator(
     config.LEGAL_AGE,
     config.MINIMUM_CARD_NUMBER_LENGTH,
     config.MAXIMUM_CARD_NUMBER_LENGTH,

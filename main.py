@@ -20,7 +20,7 @@ from app.service.db_service import DataBaseService
 from app.controller.api_request_handler import (
     handle_mobile_data_sell_request,
 )
-from app.validation.validator import Validator
+from app.validation.validator import CreditRequestValidator
 import logging
 from sqlalchemy.orm import Session
 from typing import Annotated
@@ -35,7 +35,7 @@ logging.basicConfig(level=logging.DEBUG)
 db_service = DataBaseService(config.PATH_TO_DB_FILE)
 db_session = Annotated[Session, Depends(db_service.get_db_session)]
 
-validator = Validator(
+validator = CreditRequestValidator(
     legal_age=config.LEGAL_AGE,
     minimum_card_number_length=config.MINIMUM_CARD_NUMBER_LENGTH,
     maximum_card_number_length=config.MAXIMUM_CARD_NUMBER_LENGTH,

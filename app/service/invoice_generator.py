@@ -3,7 +3,6 @@ This module contains the functions for generating invoices. It includes a functi
 QR code, a function for rendering an HTML invoice, and a function for generating a PDF invoice.
 """
 
-# CHANGE ADD UNDERSCORE TO INTERNAL FUNCTIONS
 import os
 import datetime
 import base64
@@ -39,6 +38,12 @@ class InvoiceGenerator:
         self.invoice_template_path: str = invoice_template_path
         self.pdf_output_path: str = pdf_output_path
         self.base_url: str = base_url
+        self.qr_template = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=5,
+            border=2,
+        )
 
     def _generate_qr_code(self, billing_account_number: str) -> str:
         """
@@ -48,16 +53,12 @@ class InvoiceGenerator:
         """
         logger.info("Generating a QR code for the billing account number")
         url: str = f"{self.base_url}/{billing_account_number}"
-        qr: qrcode.QRCode = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=5,
-            border=2,
-        )
-        qr.add_data(url)
-        qr.make(fit=True)
+        self.qr_template.add_data(url)
+        self.qr_template.make(fit=True)
 
-        img: qrcode.image.pil.PilImage = qr.make_image(fill="black", back_color="white")
+        img: qrcode.image.pil.PilImage = self.qr_template.make_image(
+            fill="black", back_color="white"
+        )
 
         buffer: io.BytesIO = io.BytesIO()
         img.save(buffer, format="PNG")

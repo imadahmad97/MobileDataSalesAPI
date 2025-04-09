@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from app.service.db_service import DataBaseService
-from app.validation.validator import Validator
+from app.validation.validator import CreditRequestValidator
 from app.service.parser import parse_csv_content
 from app.model.mobile_data_sell_order import MobileDataSellOrder
 from app.service.invoice_generator import InvoiceGenerator
@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.DEBUG)
 async def handle_mobile_data_sell_request(
     api_request: Request,
     db_session: Session,
-    validator: Validator,
+    validator: CreditRequestValidator,
     invoice_generator: InvoiceGenerator,
 ) -> JSONResponse:
     """
