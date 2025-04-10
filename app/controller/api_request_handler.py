@@ -44,7 +44,7 @@ async def handle_mobile_data_sell_request(
     # Step 3: Generate PDF invoices
     invoice_generator.generate_pdf_invoices(validated_sell_orders)
 
-    # Step 4: Get the responses
+    # Step 4: Construct the responses
     responses: dict = {}
 
     for sell_order in validated_sell_orders:

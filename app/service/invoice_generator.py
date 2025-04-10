@@ -23,6 +23,12 @@ logging.getLogger("weasyprint").setLevel(logging.ERROR)
 logging.getLogger("PIL").setLevel(logging.ERROR)
 
 
+# Change: Add params to docstring for both class instantiation and functions
+# Change: Remove docstrings for init
+# Change: Put internal functions at the end of the class
+# Change base_url to qr_code_base_url
+
+
 class InvoiceGenerator:
     """
     This class contains methods for generating invoices. It includes methods for generating a QR code,
@@ -66,6 +72,7 @@ class InvoiceGenerator:
 
         return qr_code_base64
 
+    # Change: Pass template in initialization
     def _render_html_invoice(
         self,
         sell_order: "MobileDataSellOrder",
@@ -97,14 +104,14 @@ class InvoiceGenerator:
 
         return html_invoice
 
+    # Change: Pass html in initialization
     def _generate_pdf_invoice(
         self,
         sell_order: "MobileDataSellOrder",
     ) -> None:
         """
-        This function generates a PDF invoice for a given mobile data purchase response. It renders the
-        invoice as an HTML string, writes the HTML to a PDF file, and saves the file to the appdata/pdfs
-        directory.
+        This function generates a PDF invoice for a given mobile data sell order. It renders the
+        invoice as an HTML string, writes the HTML to a PDF file, and saves the file to the ourput path.
         """
         html_content: str = self._render_html_invoice(sell_order)
         filename: str = f"invoice_{sell_order.billing_account_number}.pdf"

@@ -3,6 +3,7 @@ import datetime
 from app.model.mobile_data_sell_order import MobileDataSellOrder
 
 
+# Change: These are all already init fields in sqlmodel, so no need for the classmethod
 class MobileDataPurchaseTransaction(SQLModel, table=True):
     name: str = Field()
     date_of_birth: datetime.datetime = Field()
