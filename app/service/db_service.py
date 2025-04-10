@@ -57,10 +57,16 @@ class DataBaseService:
         """
 
         for sell_order in sell_orders:
-            transaction = (
-                MobileDataPurchaseTransaction.build_transaction_from_sell_order(
-                    sell_order
-                )
+            transaction = MobileDataPurchaseTransaction(
+                name=sell_order.name,
+                date_of_birth=sell_order.date_of_birth,
+                credit_card_number=sell_order.credit_card_number,
+                credit_card_expiration_date=sell_order.credit_card_expiration_date,
+                credit_card_cvv=sell_order.credit_card_cvv,
+                billing_account_number=sell_order.billing_account_number,
+                requested_mobile_data=sell_order.requested_mobile_data,
+                status=sell_order.status,
+                validation_errors=", ".join(sell_order.validation_errors),
             )
             logger.info(
                 f"Committing the transaction for BAN {sell_order.billing_account_number} to the database"
