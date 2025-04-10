@@ -26,15 +26,22 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 from contextlib import asynccontextmanager
 import config
+import qrcode  # type: ignore
 from app.service.invoice_generator import InvoiceGenerator
+from jinja2 import Environment, FileSystemLoader
+from weasyprint import HTML  # type: ignore
 from luhncheck import is_luhn
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
+logger.info("Starting the FastAPI application")
+
+logger.info("Initializing Database")
 db_service = DataBaseService(config.PATH_TO_DB_FILE)
 db_session = Annotated[Session, Depends(db_service.get_db_session)]
 
+logger.info("Initializing validator")
 validator = CreditRequestValidator(
     legal_age=config.LEGAL_AGE,
     minimum_card_number_length=config.MINIMUM_CARD_NUMBER_LENGTH,
@@ -45,10 +52,22 @@ validator = CreditRequestValidator(
     luhn_validator=is_luhn,
 )
 
+logger.info("Initializing invoice generator")
 invoice_generator = InvoiceGenerator(
     invoice_template_path=config.INVOICE_TEMPLATE_PATH,
     pdf_output_path=config.PDF_OUTPUT_PATH,
-    base_url=config.BASE_URL,
+    qr_code_base_url=config.QR_CODE_BASE_URL,
+    qr_code_template=qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=5,
+        border=2,
+    ),
+    html_template=config.HTML_TEMPLATE,
+    html_template_environment=Environment(
+        loader=FileSystemLoader(config.INVOICE_TEMPLATE_PATH),
+    ),
+    html_factory=lambda s: HTML(string=s),
 )
 
 

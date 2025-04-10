@@ -14,4 +14,5 @@ MAXIMUM_CVV_LENGTH: int = 4
 # Invoice Generation Variables
 INVOICE_TEMPLATE_PATH: str = "templates"
 PDF_OUTPUT_PATH: str = "appdata/pdfs"
-BASE_URL: str = "https://telus.com/user"
+QR_CODE_BASE_URL: str = "https://telus.com/user"
+HTML_TEMPLATE: str = "invoice_template.html"
