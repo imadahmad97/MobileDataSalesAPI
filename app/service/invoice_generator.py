@@ -62,8 +62,7 @@ class InvoiceGenerator:
         """
         for sell_order in sell_orders:
             logger.info(
-                f"Generating a PDF invoice for BAN {sell_order.billing_account_number
-            }"
+                f"Generating a PDF invoice for BAN {sell_order.billing_account_number}"
             )
             self._generate_pdf_invoice(sell_order)
 
