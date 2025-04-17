@@ -18,6 +18,6 @@ RUN pytest tests
 
 # Expose port 80 as the container's port for the application
 EXPOSE 80
-
+ 
 # Run the application using FastAPI
 CMD ["fastapi", "run", "main.py", "--port", "80"]

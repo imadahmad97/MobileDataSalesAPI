@@ -31,6 +31,15 @@ class InvoiceGenerator:
     """
     This class contains methods for generating invoices. It includes methods for generating a QR code,
     rendering an HTML invoice, and generating a PDF invoice.
+
+    Attributes:
+        invoice_template_path (str): The path to the invoice template file.
+        pdf_output_path (str): The path to the output directory for the generated PDF invoices.
+        qr_code_base_url (str): The base URL for generating QR codes.
+        qr_code_template (qrcode.QRCode): The QR code template for generating QR codes.
+        html_template (str): The HTML template for rendering the invoice.
+        html_template_environment (Environment): The Jinja2 environment for rendering the HTML template.
+        html_factory (Callable[[str], HTML]): A callable factory for creating HTML objects from strings.
     """
 
     def __init__(
@@ -59,6 +68,9 @@ class InvoiceGenerator:
         This function generates PDF invoices for a list of mobile data purchase responses. It iterates
         over the list, generates a PDF invoice for each response, and saves the invoices to the
         appdata/pdfs directory.
+
+        Args:
+            sell_orders (list[MobileDataSellOrder]): A list of mobile data purchase responses.
         """
         for sell_order in sell_orders:
             logger.info(
@@ -73,6 +85,9 @@ class InvoiceGenerator:
         """
         This function generates a PDF invoice for a given mobile data sell order. It renders the
         invoice as an HTML string, writes the HTML to a PDF file, and saves the file to the ourput path.
+
+        Args:
+            sell_order (MobileDataSellOrder): The mobile data sell order to generate the invoice for.
         """
         html_content: str = self._render_html_invoice(sell_order)
         filename: str = f"invoice_{sell_order.billing_account_number}.pdf"
@@ -87,6 +102,9 @@ class InvoiceGenerator:
         """
         This function renders an HTML invoice containing the proided data and generated QR code. It
         returns the rendered HTML as a string.
+
+        Args:
+            sell_order (MobileDataSellOrder): The mobile data sell order to generate the invoice for.
         """
         logger.info("Rendering the HTML invoice")
 
@@ -115,6 +133,9 @@ class InvoiceGenerator:
         This function generates a QR code for a given billing account number. It generates the code,
         adds the URL with the billing account number, and returns the base64 encoded string of the
         qr code.
+
+        Args:
+            billing_account_number (str): The billing account number to generate the QR code for.
         """
         logger.info("Generating a QR code for the billing account number")
         url: str = f"{self.qr_code_base_url}/{billing_account_number}"

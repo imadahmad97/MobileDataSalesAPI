@@ -10,6 +10,9 @@ import csv
 def parse_csv_content(content: bytes) -> list[MobileDataSellOrder]:
     """
     This function parses the content of a CSV file into a list of MobileDataSellOrder objects
+
+    Args:
+        content (bytes): The content of the CSV file as bytes.
     """
 
     parsed_rows: list[list[str]] = parse_text_from_binary(content)
@@ -28,6 +31,9 @@ def parse_csv_content(content: bytes) -> list[MobileDataSellOrder]:
 def parse_text_from_binary(content: bytes) -> list[list[str]]:
     """
     This function parses the content of a CSV file into a list of lists of strings
+
+    Args:
+        content (bytes): The content of the CSV file as bytes.
     """
     csv_text: io.StringIO = io.StringIO(content.decode("utf-8"))
     reader: csv.reader = csv.reader(csv_text)  # type: ignore

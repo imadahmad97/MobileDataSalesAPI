@@ -18,6 +18,10 @@ def validate_sell_orders(
 ) -> list[MobileDataSellOrder]:
     """
     This function validates a list of mobile data sell orders.
+
+    Args:
+        sell_orders (list[MobileDataSellOrder]): The list of mobile data sell orders to be validated.
+        validator (CreditRequestValidator): The validator for validating the credit requests.
     """
     validated_sell_orders = []
     for sell_order in sell_orders:
@@ -36,6 +40,10 @@ def validate_sell_order(
     This function validates a single mobile data sell order. It does so by calling the individual
     validation functions and appending any errors to the validation_errors attribute of the
     MobileDataSellOrder object.
+
+    Args:
+        sell_order (MobileDataSellOrder): The mobile data sell order to be validated.
+        validator (CreditRequestValidator): The validator for validating the credit requests.
     """
     validated_sell_order = deepcopy(sell_order)
 

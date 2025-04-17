@@ -54,6 +54,11 @@ class DataBaseService:
         This method records multiple transactions to the database. It is called by the
         process_mobile_data_purchase_request function after the request has been validated and
         processed.
+
+        Args:
+            sell_orders (list[MobileDataSellOrder]): A list of MobileDataSellOrder objects to be
+                recorded in the database.
+            session (Session): The database session to be used for the transaction.
         """
 
         for sell_order in sell_orders:

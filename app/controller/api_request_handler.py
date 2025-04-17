@@ -30,6 +30,12 @@ async def handle_mobile_data_sell_request(
     This function handles a mobile data sell request. It takes a request as input, validates,
     records, generates PDF invoices, and returns a JSON response with the status and BAN of each
     request.
+
+    Args:
+        api_request (Request): The API request containing the CSV content.
+        db_session (Session): The database session for interacting with the database.
+        validator (CreditRequestValidator): The validator for validating the credit requests.
+        invoice_generator (InvoiceGenerator): The invoice generator for generating PDF invoices.
     """
 
     # Prep Step: Parse the CSV content into a list of MobileDataSellOrder objects

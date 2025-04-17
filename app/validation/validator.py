@@ -28,6 +28,9 @@ class CreditRequestValidator:
     def is_customer_of_legal_age(self, date_of_birth: datetime.datetime) -> bool:
         """
         This function checks if the customer is of legal age.
+
+        Args:
+            date_of_birth (datetime.datetime): The date of birth of the customer.
         """
         age: int = datetime.datetime.now().year - date_of_birth.year
         if date_of_birth.month > datetime.datetime.now().month:
@@ -47,6 +50,9 @@ class CreditRequestValidator:
         """
         This function checks if the credit card number length is between the provided minimum and
         maximum.
+
+        Args:
+            credit_card_number (str): The credit card number to be validated.
         """
         if not (
             self.minimum_card_number_length
@@ -62,6 +68,9 @@ class CreditRequestValidator:
     ) -> bool:
         """
         This function checks if the credit card number is valid using the Luhn algorithm.
+
+        Args:
+            credit_card_number (str): The credit card number to be validated.
         """
         if not self.luhn_validator(credit_card_number):
             return False
@@ -70,6 +79,9 @@ class CreditRequestValidator:
     def is_cvv_valid(self, credit_card_cvv: str) -> bool:
         """
         This function checks if the credit card cvv length is between the provided minimum and maximum.
+
+        Args:
+            credit_card_cvv (str): The credit card cvv to be validated.
         """
         if (
             not self.minimum_cvv_length
@@ -84,6 +96,9 @@ class CreditRequestValidator:
     ) -> bool:
         """
         This function checks if the credit card expiration date is in the future.
+
+        Args:
+            credit_card_expiration_date (datetime.datetime): The credit card expiration date to be validated.
         """
         if credit_card_expiration_date <= datetime.datetime.now():
             return False
